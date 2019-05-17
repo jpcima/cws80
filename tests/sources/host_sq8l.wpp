@@ -1,0 +1,164 @@
+// -*- mode: c++; -*-
+
+#include "host_sq8l.h"
+#include "cws/cws80_program.h"
+#include "utility/scope_guard.h"
+#include <cstdio>
+
+Host_SQ8L::Host_SQ8L(const char *dllname, f32 srate, u32 bsize)
+    : srate_(srate), bsize_(bsize), temp_(new f32[2 * bsize])
+{
+    Dl_Handle handle = Dl_open(dllname);
+    if (!handle) {
+        fprintf(stderr, "Cannot load VST: %s\n", dllname);
+        return;
+    }
+    handle_.reset(handle);
+
+    typedef AEffect *(plugin_main_t)(audioMasterCallback);
+    plugin_main_t *plugin_main = reinterpret_cast<plugin_main_t *>(Dl_sym(handle, "main"));
+    if (!plugin_main)
+        plugin_main = reinterpret_cast<plugin_main_t *>(Dl_sym(handle, "VSTPluginMain"));
+
+    if (!plugin_main)
+    {
+        fprintf(stderr, "Cannot find VST entry point.\n");
+        return;
+    }
+
+    AEffect *aeff = plugin_main(&host_callback);
+    if (!aeff) {
+        fprintf(stderr, "Cannot instance VST effect.\n");
+        return;
+    }
+    aeff_.reset(aeff);
+
+    if (aeff->numInputs != 0 && aeff->numOutputs != 2) {
+        fprintf(stderr, "Unexpected number of inputs and outputs.\n");
+        aeff_.reset();
+        return;
+    }
+
+    aeff->dispatcher(aeff, effOpen, 0, 0, nullptr, 0);
+    aeff->dispatcher(aeff, effSetSampleRate, 0, 0, nullptr, srate);
+    aeff->dispatcher(aeff, effSetBlockSize, 0, bsize, nullptr, 0);
+    aeff->dispatcher(aeff, effMainsChanged, 0, 1, nullptr, 0);
+}
+
+u32 Host_SQ8L::get_current_program()
+{
+    AEffect *aeff = aeff_.get();
+    return aeff->dispatcher(aeff, effGetProgram, 0, 0, nullptr, 0);
+}
+
+void Host_SQ8L::set_current_program(u32 program)
+{
+    AEffect *aeff = aeff_.get();
+    aeff->dispatcher(aeff, effSetProgram, 0, program, nullptr, 0);
+}
+
+std::string Host_SQ8L::get_current_program_name()
+{
+    AEffect *aeff = aeff_.get();
+    char programname[64] = {};
+    aeff->dispatcher(aeff, effGetProgramName, 0, 0, programname, 0);
+    return programname;
+}
+
+dynarray<u8> Host_SQ8L::get_current_program_chunk()
+{
+    AEffect *aeff = aeff_.get();
+    u8 *data = nullptr;
+    u32 size = aeff->dispatcher(aeff, 23 /*effGetChunk*/, 1, 0, (void **)&data, 0);
+    return dynarray<u8>(data, data + size);
+}
+
+bool Host_SQ8L::send_midi(const u8 *msg, size_t len)
+{
+    if (len > 4)
+        return false;
+
+    AEffect *aeff = aeff_.get();
+    VstMidiEvent event = {};
+    event.type = kVstMidiType;
+    event.byteSize = sizeof(event);
+    std::copy(msg, msg + len, event.midiData);
+
+    VstEvents events = {};
+    events.numEvents = 1;
+    events.events[0] = reinterpret_cast<VstEvent *>(&event);
+
+    aeff->dispatcher(aeff, effProcessEvents, 0, 0, &events, 0);
+    return true;
+}
+
+bool Host_SQ8L::send_sysex(const u8 *msg, size_t len)
+{
+    AEffect *aeff = aeff_.get();
+
+    struct Event {
+        i32 type;
+        i32 byteSize;
+        i32 deltaFrames;
+        i32 flags;
+        i32 dumpBytes;
+        void *resvd1;
+        char *sysexDump;
+        void *resvd2;
+    };
+
+    Event event = {};
+    event.type = 6;
+    event.byteSize = sizeof(event);
+    event.dumpBytes = len;
+    event.sysexDump = (char *)msg;
+
+    VstEvents events = {};
+    events.numEvents = 1;
+    events.events[0] = reinterpret_cast<VstEvent *>(&event);
+
+    aeff->dispatcher(aeff, effProcessEvents, 0, 0, &events, 0);
+    return true;
+}
+
+void Host_SQ8L::process(f32 *out, u32 nframes)
+{
+    AEffect *aeff = aeff_.get();
+
+    u32 totalframes = nframes;
+    u32 bsize = bsize_;
+
+    while (totalframes > 0) {
+        nframes = std::min(totalframes, bsize);
+
+        f32 *temp = temp_.get();
+        f32 *bufs[] = {temp, temp + bsize};
+        aeff->processReplacing(aeff, nullptr, bufs, nframes);
+
+        for (u32 i = 0; i < nframes; ++i) {
+            out[2 * i + 0] = temp[i];
+            out[2 * i + 1] = temp[i + nframes];
+        }
+
+        totalframes -= nframes;
+        out += 2 * nframes;
+    }
+}
+
+intptr_t Host_SQ8L::host_callback(
+    AEffect *aeff, i32 opcode, i32 index, intptr_t value, void *ptr, f32 opt)
+{
+    switch (opcode) {
+    case audioMasterVersion:
+        return 2400;
+
+    case audioMasterUpdateDisplay:
+        return 1;
+
+    default:
+        fprintf(stderr, "Host: unhandled master opcode: %u\n", opcode);
+        break;
+    }
+
+    return 0;
+}

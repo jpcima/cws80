@@ -1,0 +1,180 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#| <Put a one-line description here>
+exec ros -Q -- $0 "$@"
+|#
+(progn ;;init forms
+  (ros:ensure-asdf)
+  ;;#+quicklisp (ql:quickload '() :silent t)
+  )
+
+(defpackage #:ros.script.generate-parameters
+  (:use #:cl))
+(in-package #:ros.script.generate-parameters)
+
+(defconstant +env-count+ 4)
+(defconstant +lfo-count+ 3)
+(defconstant +osc-count+ 3)
+
+(defvar *env-params*
+  '((L1 :signed 7)
+    (L2 :signed 7)
+    (L3 :signed 7)
+    (T1 :unsigned 6)
+    (T2 :unsigned 6)
+    (T3 :unsigned 6)
+    (T4 :unsigned 6)
+    (LV :unsigned 6)
+    (T1V :unsigned 6)
+    (TK :unsigned 6)
+    (LE :unsigned 1)
+    (R2 :unsigned 1)))
+
+(defvar *lfo-params*
+  '((FREQ :unsigned 6)
+    (WAV :unsigned 2)
+    (L1 :unsigned 6)
+    (L2 :unsigned 6)
+    (MOD :unsigned 4 :accessor-p t)
+    (DELAY :unsigned 6)
+    (HUMAN :unsigned 1)
+    (RESET :unsigned 1)))
+
+(defvar *osc-params*
+  '((OCT :signed 8 :min -3 :max 5 :accessor-p t)
+    (SEMI :unsigned 8 :min 0 :max 11 :accessor-p t )
+    (FINE :unsigned 5)
+    (FMSRC1 :unsigned 4)
+    (FMSRC2 :unsigned 4)
+    (FCMODAMT1 :signed 7)
+    (FCMODAMT2 :signed 7)
+    (WAVEFORM :unsigned 8)
+    (DCALEVEL :unsigned 6)
+    (DCAENABLE :unsigned 1)
+    (AMSRC1 :unsigned 4)
+    (AMSRC2 :unsigned 4)
+    (AMAMT1 :signed 7)
+    (AMAMT2 :signed 7)))
+
+(defvar *misc-params*
+  '((DCA4MODAMT :unsigned 6)
+    (AM :unsigned 1)
+    (FLTFC :unsigned 7)
+    (SYNC :unsigned 1)
+    (Q :unsigned 5)
+    (FCSRC1 :unsigned 4)
+    (FCSRC2 :unsigned 4)
+    (FCMODAMT1 :signed 7)
+    (VC :unsigned 1)
+    (FCMODAMT2 :signed 7)
+    (MONO :unsigned 1)
+    (KEYBD :unsigned 6)
+    (ENV :unsigned 1)
+    (GLIDE :unsigned 6)
+    (OSC :unsigned 1)
+    (SPLITPOINT :unsigned 7)
+    (SPLITDIR :unsigned 1)
+    (LAYERPRG :unsigned 7)
+    (LAYER :unsigned 1)
+    (SPLITPRG :unsigned 7)
+    (SPLIT :unsigned 1)
+    (SPLITLAYERPRG :unsigned 7)
+    (SPLITLAYER :unsigned 1)
+    (PANMODSRC :unsigned 4)
+    (PAN :unsigned 4)
+    (PANMODAMT :signed 7)
+    (CYCLE :unsigned 1)))
+
+(defun getmin (sign bits)
+  (ecase sign
+    (:signed (ash -1 (1- bits)))
+    (:unsigned 0)))
+
+(defun getmax (sign bits)
+  (1- (ecase sign
+        (:signed (ash 1 (1- bits)))
+        (:unsigned (ash 1 bits)))))
+
+(defun getter (accessor-p fmt &rest args)
+  (if accessor-p
+      (format nil "~A()" (apply #'format nil fmt args))
+      (format nil "~A" (apply #'format nil fmt args))))
+
+(defun setter (accessor-p fmt &rest args)
+  (if accessor-p
+      (format nil "~A(v)" (apply #'format nil fmt args))
+      (format nil "~A = v" (apply #'format nil fmt args))))
+
+(defun generate-category (id cat params access-fmt &optional access-args)
+  (let ((fmt "  P(~D,~10T~A,~15T~A,~35T~A,~65T~A,~95T~A,~105T~A)~115T\\~%"))
+    (dolist (par params id)
+      (destructuring-bind (name sign bits &key accessor-p min max) par
+        (format t fmt
+                (1- (incf id))
+                cat name
+                (apply #'getter accessor-p access-fmt `(,@access-args ,name))
+                (apply #'setter accessor-p access-fmt `(,@access-args ,name))
+                (or min (getmin sign bits))
+                (or max (getmax sign bits)))))))
+
+(defun generate-parameters ()
+  (format t "#define EACH_PARAMETER(P) \\~%")
+  (let ((counter 0))
+    (dotimes (nth +env-count+)
+      (let ((cat (format nil "Env~A" nth)))
+        (setf counter (generate-category counter cat *env-params* "x.envs[~A].~A" `(,nth)))))
+    (dotimes (nth +lfo-count+)
+      (let ((cat (format nil "Lfo~A" nth)))
+        (setf counter (generate-category counter cat *lfo-params* "x.lfos[~A].~A" `(,nth)))))
+    (dotimes (nth +osc-count+)
+      (let ((cat (format nil "Osc~A" nth)))
+        (setf counter (generate-category counter cat *osc-params* "x.oscs[~A].~A" `(,nth)))))
+    (setf counter (generate-category counter "Misc" *misc-params* "x.misc.~A")))
+  (format t "  /* END OF PARAMETERS */~%"))
+
+(defun generate-metadata ()
+  (format t "namespace Param {~%")
+  (format t "enum {~%")
+  (format t "  env_count = ~A,~%" +env-count+)
+  (format t "  lfo_count = ~A,~%" +lfo-count+)
+  (format t "  osc_count = ~A,~%" +osc-count+)
+  (format t "  //~%")
+  (format t "  env_params = ~A,~%" (length *env-params*))
+  (format t "  lfo_params = ~A,~%" (length *lfo-params*))
+  (format t "  osc_params = ~A,~%" (length *osc-params*))
+  (format t "  misc_params = ~A,~%" (length *misc-params*))
+  (format t "  //~%")
+  (format t "  num_params = ~A,~%"
+          (+ (* +env-count+ (length *env-params*))
+             (* +lfo-count+ (length *lfo-params*))
+             (* +osc-count+ (length *osc-params*))
+             (length *misc-params*)))
+  (format t "  //~%")
+  (let ((counter 0))
+    (format t "  first_env_param = ~A,~%" counter)
+    (incf counter (* +env-count+ (length *env-params*)))
+    (format t "  first_lfo_param = ~A,~%" counter)
+    (incf counter (* +lfo-count+ (length *lfo-params*)))
+    (format t "  first_osc_param = ~A,~%" counter)
+    (incf counter (* +osc-count+ (length *osc-params*)))
+    (format t "  first_misc_param = ~A,~%" counter))
+  (format t "};~%")
+  (format t "}  // namespace Param~%"))
+
+(defun main (&rest argv)
+  (declare (ignorable argv))
+  (format t "/* This file is automatically generated by \"~A\". */~%"
+          #.(make-pathname :defaults *load-pathname* :directory nil))
+  (write-string "#pragma once
+
+namespace cws80 {
+
+")
+  (generate-parameters)
+  (write-char #\Newline)
+  (generate-metadata)
+  (write-string "
+}  // namespace cws80
+"))
+
+;;; vim: set ft=lisp lisp:

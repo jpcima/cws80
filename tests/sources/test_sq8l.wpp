@@ -1,0 +1,180 @@
+// -*- mode: c++; -*-
+
+#include "host_sq8l.h"
+#include "cws/cws80_program.h"
+#include "utility/scope_guard.h"
+#include "utility/types.h"
+#include <sndfile.h>
+#include <getopt.h>
+#include <boost/lexical_cast.hpp>
+#include <algorithm>
+#include <memory>
+#include <cmath>
+#include <cstdio>
+
+struct Subcommand {
+    const char *name;
+    const char *description;
+    int (*entry)(int argc, char *argv[]);
+};
+
+extern Subcommand subcommands[];
+
+//------------------------------------------------------------------------------
+int main(int argc, char *argv[])
+{
+    if (argc < 2) {
+        fprintf(stderr, "Usage: test_sq8l <subcommand> <args>\n"
+                        "\n"
+                        "Available subcommands:\n");
+        for (Subcommand *sp = subcommands; sp->name; ++sp)
+            fprintf(stderr, "  %-30s -- %s\n", sp->name, sp->description);
+        return 1;
+    }
+
+    ++argv;
+    --argc;
+
+    Subcommand *cmd = nullptr;
+    for (Subcommand *sp = subcommands; !cmd && sp->name; ++sp)
+        if (!strcmp(sp->name, argv[0]))
+            cmd = sp;
+
+    if (!cmd)
+        return 1;
+
+    return cmd->entry(argc, argv);
+}
+
+static const char vst_default_name[] = "SQ8L.dll";
+static constexpr f32 default_srate = 44100;
+static constexpr u32 default_bsize = 512;
+
+//------------------------------------------------------------------------------
+int cmd_synth(int argc, char *argv[])
+{
+    const char *vst_name = vst_default_name;
+    constexpr f32 srate = default_srate;
+    constexpr u32 bsize = default_bsize;
+    const char *output_file = nullptr;
+
+    u32 program = 0;
+
+    uint note = 69;
+    uint vel = 100;
+
+    float ton = 1.0;
+    float toff = 1.0;
+
+    for (int c; (c = getopt(argc, argv, "o:p:")) != -1;) {
+        switch (c) {
+        case 'o':
+            output_file = optarg;
+            break;
+        case 'p':
+            program = boost::lexical_cast<u32>(optarg);
+            break;
+        default:
+            return 1;
+        }
+    }
+
+    uint count = argc - optind;
+    if (count != 0) {
+        fprintf(stderr, "Bad number of positional arguments.");
+        return 1;
+    }
+
+    if (!output_file) {
+        fprintf(stderr, "No output file given.\n");
+        return 1;
+    }
+
+    Host_SQ8L host(vst_name, srate, bsize);
+    if (!host)
+        return 1;
+
+    host.set_current_program(program);
+    if (host.get_current_program() != program) {
+        fprintf(stderr, "Failed to set current program: %u\n", program);
+        return 1;
+    }
+
+    fprintf(stderr, "> Current program: %u \"%s\"\n",
+            program, host.get_current_program_name().c_str());
+
+    ///
+    SF_INFO sndinfo = {};
+    sndinfo.samplerate = srate;
+    sndinfo.channels = 2;
+    sndinfo.format = SF_FORMAT_WAV|SF_FORMAT_PCM_16;
+    SNDFILE *snd = sf_open(output_file, SFM_WRITE, &sndinfo);
+    if (!snd) {
+        fprintf(stderr, "Cannot open sound file for writing.\n");
+        return 1;
+    }
+    SCOPE(exit) { sf_close(snd); };
+
+    //
+    u32 frames_on = (u32)std::ceil(ton * srate);
+    u32 frames_off = (u32)std::ceil(toff * srate);
+
+    const u8 note_on_msg[] = {0x90, (u8)(note & 127), (u8)(vel & 127)};
+    const u8 note_off_msg[] = {0x80, (u8)(note & 127), (u8)(vel & 127)};
+
+    std::unique_ptr<f32[]> buffer(new f32[2 * std::max<size_t>(frames_on, frames_off)]);
+
+    host.send_midi(note_on_msg, sizeof(note_on_msg));
+    host.process(buffer.get(), frames_on);
+    sf_writef_float(snd, buffer.get(), frames_on);
+
+    host.send_midi(note_off_msg, sizeof(note_off_msg));
+    host.process(buffer.get(), frames_off);
+    sf_writef_float(snd, buffer.get(), frames_off);
+
+    return 0;
+}
+
+//------------------------------------------------------------------------------
+int cmd_list_programs(int argc, char *argv[])
+{
+    const char *vst_name = vst_default_name;
+    constexpr f32 srate = default_srate;
+    constexpr u32 bsize = default_bsize;
+
+    for (int c; (c = getopt(argc, argv, "")) != -1;) {
+        switch (c) {
+        default:
+            return 1;
+        }
+    }
+
+    uint count = argc - optind;
+    if (count != 0) {
+        fprintf(stderr, "Bad number of positional arguments.");
+        return 1;
+    }
+
+    Host_SQ8L host(vst_name, srate, bsize);
+    if (!host)
+        return 1;
+
+    u32 num_programs = host.num_programs();
+    for (u32 program = 0; program < num_programs; ++program) {
+        host.set_current_program(program);
+        if (host.get_current_program() != program) {
+            fprintf(stderr, "Failed to set current program: %u\n", program);
+            return 1;
+        }
+        printf("%3u %s\n", program, host.get_current_program_name().c_str());
+    }
+
+    return 0;
+}
+
+//------------------------------------------------------------------------------
+Subcommand subcommands[16] = {
+    {"synth", "Synthesize a note", &cmd_synth},
+    {"list-programs", "List programs", &cmd_list_programs},
+    {},
+};

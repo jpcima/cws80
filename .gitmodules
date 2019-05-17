@@ -1,0 +1,15 @@
+[submodule "dpf"]
+	path = dpf
+	url = https://github.com/DISTRHO/DPF.git
+[submodule "thirdparty/gsl-lite"]
+	path = thirdparty/gsl-lite
+	url = https://github.com/martinmoene/gsl-lite.git
+[submodule "thirdparty/nuklear"]
+	path = thirdparty/nuklear
+	url = https://github.com/vurtun/nuklear
+[submodule "thirdparty/stb"]
+	path = thirdparty/stb
+	url = https://github.com/nothings/stb.git
+[submodule "thirdparty/fmt"]
+	path = thirdparty/fmt
+	url = https://github.com/fmtlib/fmt.git
