@@ -5,6 +5,10 @@
 #include <vestige.h>
 #include <memory>
 
+struct Vst_ERect {
+    int16_t top, left, bottom, right;
+};
+
 class Host_SQ8L {
 public:
     Host_SQ8L(const char *dllname, f32 srate, u32 bsize);
@@ -19,6 +23,11 @@ public:
     dynarray<u8> get_current_program_chunk();
     bool send_midi(const u8 *msg, size_t len);
     bool send_sysex(const u8 *msg, size_t len);
+
+    void get_editor_rect(Vst_ERect **rect);
+    void open_editor(void *window);
+    void close_editor();
+    void idle_editor();
 
     void process(f32 *out, u32 nframes);
 

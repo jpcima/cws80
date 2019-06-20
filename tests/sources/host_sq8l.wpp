@@ -121,6 +121,30 @@ bool Host_SQ8L::send_sysex(const u8 *msg, size_t len)
     return true;
 }
 
+void Host_SQ8L::get_editor_rect(Vst_ERect **rect)
+{
+    AEffect *aeff = aeff_.get();
+    aeff->dispatcher(aeff, effEditGetRect, 0, 0, rect, 0);
+}
+
+void Host_SQ8L::open_editor(void *window)
+{
+    AEffect *aeff = aeff_.get();
+    aeff->dispatcher(aeff, effEditOpen, 0, 0, window, 0);
+}
+
+void Host_SQ8L::close_editor()
+{
+    AEffect *aeff = aeff_.get();
+    aeff->dispatcher(aeff, effEditClose, 0, 0, nullptr, 0);
+}
+
+void Host_SQ8L::idle_editor()
+{
+    AEffect *aeff = aeff_.get();
+    aeff->dispatcher(aeff, effEditIdle, 0, 0, nullptr, 0);
+}
+
 void Host_SQ8L::process(f32 *out, u32 nframes)
 {
     AEffect *aeff = aeff_.get();

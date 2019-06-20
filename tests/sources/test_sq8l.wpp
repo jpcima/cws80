@@ -173,8 +173,84 @@ int cmd_list_programs(int argc, char *argv[])
 }
 
 //------------------------------------------------------------------------------
+int cmd_shell(int argc, char *argv[])
+{
+    const char *vst_name = vst_default_name;
+    constexpr f32 srate = default_srate;
+    constexpr u32 bsize = default_bsize;
+
+    for (int c; (c = getopt(argc, argv, "")) != -1;) {
+        switch (c) {
+        default:
+            return 1;
+        }
+    }
+
+    uint count = argc - optind;
+    if (count != 0) {
+        fprintf(stderr, "Bad number of positional arguments.");
+        return 1;
+    }
+
+    Host_SQ8L host(vst_name, srate, bsize);
+    if (!host)
+        return 1;
+
+    Vst_ERect *rect = nullptr;
+    host.get_editor_rect(&rect);
+    if (!rect)
+        return 1;
+
+    HINSTANCE hinst = GetModuleHandle(nullptr);
+
+    WNDCLASSEX wc;
+    memset(&wc, 0, sizeof(wc));
+    wc.cbSize = sizeof(wc);
+    wc.style = 0;
+    wc.lpfnWndProc = &DefWindowProc;
+    wc.hInstance = hinst;
+    wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
+    wc.lpszClassName = "SQ8L Host";
+    if (!RegisterClassEx(&wc))
+        return 1;
+
+    HWND wnd = CreateWindowEx(
+        WS_EX_OVERLAPPEDWINDOW,
+        wc.lpszClassName,
+        "SQ8L Host",
+        WS_OVERLAPPEDWINDOW,
+        CW_USEDEFAULT, CW_USEDEFAULT,
+        rect->right - rect->left, rect->bottom - rect->top,
+        nullptr, nullptr, hinst, nullptr);
+
+    ShowWindow(wnd, SW_SHOW);
+    UpdateWindow(wnd);
+
+    host.open_editor(wnd);
+
+    SetTimer(wnd, 0, 50, nullptr);
+
+    MSG msg;
+    while (GetMessage(&msg, nullptr, 0, 0)) {
+        if (msg.message == WM_TIMER && msg.hwnd == wnd)
+            host.idle_editor();
+        else {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+    }
+
+    host.close_editor();
+
+    #pragma message("TODO: the SQ8L shell")
+
+    return 0;
+}
+
+//------------------------------------------------------------------------------
 Subcommand subcommands[16] = {
     {"synth", "Synthesize a note", &cmd_synth},
     {"list-programs", "List programs", &cmd_list_programs},
+    {"shell", "Run test shell", &cmd_shell},
     {},
 };
