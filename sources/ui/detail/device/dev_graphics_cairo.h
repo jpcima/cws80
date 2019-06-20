@@ -1,19 +1,17 @@
 #pragma once
 #include "dev_graphics.h"
+#include "utility/types.h"
 #include <memory>
-
-typedef int GLint;
-typedef uint GLuint;
 
 //
 namespace cws80 {
 
-class GraphicsDevice_GL : public GraphicsDevice {
+class GraphicsDevice_Cairo : public GraphicsDevice {
 public:
-    explicit GraphicsDevice_GL(UIController &ctl);
-    ~GraphicsDevice_GL();
+    explicit GraphicsDevice_Cairo(UIController &ctl);
+    ~GraphicsDevice_Cairo();
 
-    inline GraphicsType type() const override { return GraphicsType::OpenGL; }
+    inline GraphicsType type() const override { return GraphicsType::Cairo; }
 
     void setup_context() override;
     void initialize(gsl::span<const FontRequest> fontreqs, const nk_rune range[]) override;

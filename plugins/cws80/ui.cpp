@@ -1,11 +1,10 @@
 #include "ui.h"
 #include "plugin.h"
 #include "ui/cws80_ui.h"
-#include "ui/detail/device/dev_graphics_gl.h"
-#include "ui/detail/device/dev_input_dpf.h"
 #include "ui/detail/ui_helpers_native.h"
 #include "plugin/plug_ui_master.h"
 #include "utility/debug.h"
+#include "Window.hpp"
 #include <memory>
 
 SynthUI::SynthUI()
@@ -36,8 +35,14 @@ void SynthUI::onDisplay()
         init_device_ = true;
     }
 
+#if defined(DGL_OPENGL)
+    void *draw_context = nullptr;
+#elif defined(DGL_CAIRO)
+    void *draw_context = this->getParentWindow().getGraphicsContext().cairo;
+#endif
+
     cws80::UI &ui = ui_;
-    ui.render_display();
+    ui.render_display(draw_context);
 }
 
 void SynthUI::uiIdle()
@@ -103,7 +108,7 @@ bool SynthUI::onScroll(const ScrollEvent &evt)
 void SynthUI::initDevice()
 {
     cws80::UI &ui = ui_;
-    cws80::GraphicsDevice_GL *gdev = new cws80::GraphicsDevice_GL(ui);
+    cws80::GraphicsDevice_DPF *gdev = new cws80::GraphicsDevice_DPF(ui);
     gdev_.reset(gdev);
     cws80::NativeUI *nat = cws80::NativeUI::create();
     nat_.reset(nat);

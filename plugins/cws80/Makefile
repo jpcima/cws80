@@ -8,6 +8,7 @@
 # Project name, used for binaries
 
 NAME = cws80
+UI_TYPE = cairo
 
 # --------------------------------------------------------------
 # Files to build
@@ -53,7 +54,6 @@ FILES_UI = \
 	sources/ui/detail/ui_helpers_tk.cpp \
 	sources/ui/detail/device/dev_input.cpp \
 	sources/ui/detail/device/dev_input_dpf.cpp \
-	sources/ui/detail/device/dev_graphics_gl.cpp \
 	sources/ui/detail/device/dev_graphics.cpp \
 	sources/ui/detail/dynamic/tcltk.cpp \
 	sources/cws/cws80_data.cpp \
@@ -74,6 +74,16 @@ FILES_UI = \
 	sources/library/compile_nuklear.cpp \
 	sources/library/compile_stb_image.cpp \
 	thirdparty/ring_buffer/ring_buffer.cpp
+
+ifeq ($(UI_TYPE),opengl)
+FILES_UI += \
+	sources/ui/detail/device/dev_graphics_gl.cpp
+endif
+
+ifeq ($(UI_TYPE),cairo)
+FILES_UI += \
+	sources/ui/detail/device/dev_graphics_cairo.cpp
+endif
 
 # --------------------------------------------------------------
 # Do some magic
@@ -108,13 +118,15 @@ BUILD_CXX_FLAGS += -DFMT_HEADER_ONLY
 # release+debug flags
 #BUILD_CXX_FLAGS += -g -UNDEBUG
 
+ifeq ($(UI_TYPE),opengl)
 $(if $(shell pkg-config --exists glew && echo 1),,$(error cannot find GLEW (libglew-dev)))
 BUILD_CXX_FLAGS += $(shell pkg-config --cflags glew)
 LINK_FLAGS += $(shell pkg-config --libs glew)
+endif
 
 # find Tcl/Tk
 TCLTK_PATHS := \
-	/usr/$(shell $(CC) -dumpmachine) \
+	/usr/$(shell $(CC) -dumpmachine)/lib \
 	/usr/lib \
 	/usr/local/lib \
 	/opt/local/lib

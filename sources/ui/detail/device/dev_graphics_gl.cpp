@@ -451,7 +451,7 @@ void GraphicsDevice_GL::unload_texture(nk_handle handle)
     glDeleteTextures(1, &id);
 }
 
-void GraphicsDevice_GL::render()
+void GraphicsDevice_GL::render(void *)
 {
     if (P->glvermaj < 3)
         P->render_gl2();

@@ -159,6 +159,19 @@ public:
 };
 
 //------------------------------------------------------------------------------
+template <class T>
+bool operator==(const im_rect<T> &a, const im_rect<T> &b)
+{
+    return a.x == b.x && a.y == b.y && a.w == b.w && a.h == b.h;
+}
+
+template <class T>
+bool operator!=(const im_rect<T> &a, const im_rect<T> &b)
+{
+    return !operator==(a, b);
+}
+
+//------------------------------------------------------------------------------
 template <> struct im_rect_traits<f32> {
     typedef struct nk_rect storage_type;
 };

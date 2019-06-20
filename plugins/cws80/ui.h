@@ -1,7 +1,13 @@
 #pragma once
 #include "DistrhoUI.hpp"
 #include "ui/cws80_ui.h"
+#if defined(DGL_OPENGL)
 #include "ui/detail/device/dev_graphics_gl.h"
+namespace cws80 { typedef GraphicsDevice_GL GraphicsDevice_DPF; }
+#elif defined(DGL_CAIRO)
+#include "ui/detail/device/dev_graphics_cairo.h"
+namespace cws80 { typedef GraphicsDevice_Cairo GraphicsDevice_DPF; }
+#endif
 #include "ui/detail/device/dev_input_dpf.h"
 #include "ui/detail/ui_helpers_native.h"
 #include "plugin/plug_ui_master.h"
@@ -40,7 +46,7 @@ protected:
 
 private:
     bool init_device_ = false;
-    std::unique_ptr<cws80::GraphicsDevice_GL> gdev_;
+    std::unique_ptr<cws80::GraphicsDevice_DPF> gdev_;
     std::unique_ptr<cws80::InputDevice_DPF> idev_;
     std::unique_ptr<cws80::NativeUI> nat_;
     cws80::UI ui_;

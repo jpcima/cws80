@@ -20,9 +20,7 @@ all: dgl plugins gen
 # --------------------------------------------------------------
 
 dgl:
-ifeq ($(HAVE_DGL),true)
 	$(MAKE) -C dpf/dgl
-endif
 
 plugins: dgl
 	$(foreach p,$(PLUGINS),$(MAKE) all -C plugins/$(p);)

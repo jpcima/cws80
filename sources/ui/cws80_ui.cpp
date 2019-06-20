@@ -122,10 +122,10 @@ bool UI::update()
     return screen.should_render();
 }
 
-void UI::render_display()
+void UI::render_display(void *draw_context)
 {
     NkScreen &screen = P->screen_;
-    screen.render();
+    screen.render(draw_context);
 }
 
 void UI::update_display()

@@ -12,6 +12,7 @@ struct FontRequest;
 enum class GraphicsType {
     Other,
     OpenGL,
+    Cairo,
     Gdiplus,
 };
 
@@ -35,7 +36,7 @@ public:
     virtual im_texture load_texture(const u8 *data, uint w, uint h, uint channels) = 0;
     virtual void unload_texture(nk_handle handle) = 0;
 
-    virtual void render() = 0;
+    virtual void render(void *draw_context) = 0;
 
     virtual nk_user_font *get_font(uint id) = 0;
 

@@ -22,7 +22,7 @@ public:
 
     void initialize(GraphicsDevice &gdev, NativeUI &nat);
     bool update();
-    void render_display();
+    void render_display(void *draw_context);
     void update_display();
 
     void receive_notification(const Notification::T &ntf);

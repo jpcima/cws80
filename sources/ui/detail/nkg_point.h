@@ -32,6 +32,19 @@ public:
 };
 
 //------------------------------------------------------------------------------
+template <class T>
+bool operator==(const im_point<T> &a, const im_point<T> &b)
+{
+    return a.x == b.x && a.y == b.y;
+}
+
+template <class T>
+bool operator!=(const im_point<T> &a, const im_point<T> &b)
+{
+    return !operator==(a, b);
+}
+
+//------------------------------------------------------------------------------
 template <> struct im_point_traits<f32> {
     typedef struct nk_vec2 storage_type;
 };

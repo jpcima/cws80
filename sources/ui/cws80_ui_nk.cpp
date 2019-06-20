@@ -120,7 +120,7 @@ bool NkScreen::should_render() const
     return has_changes;
 }
 
-void NkScreen::render()
+void NkScreen::render(void *draw_context)
 {
     nk_context &ctx = P->ctx_;
     const size_t size = ctx.memory.allocated;
@@ -140,7 +140,7 @@ void NkScreen::render()
 
     //
     GraphicsDevice &gdev = *P->gdev_;
-    gdev.render();
+    gdev.render(draw_context);
     P->forced_redisplay_ = false;
 }
 

@@ -22,7 +22,7 @@ public:
     void init(GraphicsDevice &gdev, uint w, uint h, gsl::span<const FontRequest> fontreqs);
     void clear();
     bool should_render() const;
-    void render();
+    void render(void *draw_context);
     void update();
     nk_context *context() const;
     nk_user_font *font(uint id) const;
