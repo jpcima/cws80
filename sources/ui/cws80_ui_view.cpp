@@ -320,10 +320,13 @@ void UIView::Impl::create_main_button_row(im_rectf bounds)
     std::string program_choices[128];
     for (uint i = 0; i < 128; ++i) {
         char namebuf[8];
-        cxx::string_view name =
-            (i == prognum) ? pgm.name(namebuf) : prognames[i + banknum * 128];
+        cxx::string_view name;
+        if (i == prognum)
+            name = pgm.name(namebuf);
+        else
+            name = cxx::string_view(prognames[i + banknum * 128]);
         program_choices[i] =
-            fmt::format(fmt::format("{}{:03d}  {:6s}", bankletter, i + 1, name));
+            fmt::format("{}{:03d}  {:6s}", bankletter, i + 1, name);
     }
 
     bounds.chop_from_right(10);
