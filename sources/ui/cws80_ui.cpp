@@ -27,6 +27,10 @@ namespace cws80 {
 namespace stc = std::chrono;
 
 //------------------------------------------------------------------------------
+struct Notification_Delete { void operator()(const Notification::T *x) const noexcept { NotificationTraits::free(x); } };
+typedef std::unique_ptr<Notification::T, Notification_Delete> Notification_u;
+
+//------------------------------------------------------------------------------
 struct UI::Impl {
     UI *Q = nullptr;
     UIMaster *master_ = nullptr;
@@ -44,10 +48,10 @@ struct UI::Impl {
     f64 led_timeout_ = 0;
     stc::steady_clock::time_point led_start_;
     std::string statustext_;
-    std::deque<std::unique_ptr<Notification::T>> ntfqueue_;
+    std::deque<Notification_u> ntfqueue_;
     std::mutex ntfqueuesync_;
     cxx::optional<uint> edited_parameter_;
-    std::unique_ptr<Notification::T> take_notification();
+    Notification_u take_notification();
     void handle_notification(const Notification::T &ntf);
     void load_bank(const std::string &path);
     void save_bank(const std::string &path);
@@ -104,7 +108,7 @@ bool UI::update()
 {
     NkScreen &screen = P->screen_;
 
-    while (std::unique_ptr<Notification::T> ntf = P->take_notification()) {
+    while (Notification_u ntf = P->take_notification()) {
         P->async_process_exec(*ntf);
         P->handle_notification(*ntf);
     }
@@ -133,16 +137,16 @@ void UI::update_display()
 //------------------------------------------------------------------------------
 void UI::receive_notification(const Notification::T &ntf)
 {
-    std::unique_ptr<Notification::T> copy(NotificationTraits::clone(ntf));
+    Notification_u copy(NotificationTraits::clone(ntf));
     std::lock_guard<std::mutex> guard(P->ntfqueuesync_);
     P->ntfqueue_.push_back(std::move(copy));
 }
 
-std::unique_ptr<Notification::T> UI::Impl::take_notification()
+Notification_u UI::Impl::take_notification()
 {
     std::lock_guard<std::mutex> guard(ntfqueuesync_);
     auto &queue = ntfqueue_;
-    std::unique_ptr<Notification::T> res;
+    Notification_u res;
     if (!queue.empty()) {
         res = std::move(queue.front());
         queue.pop_front();

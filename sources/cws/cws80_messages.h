@@ -51,6 +51,7 @@ struct NotificationTraits {
     constexpr size_t size() const;
     static constexpr size_t max_size();
     static Notification::T *clone(const Notification::T &ntf);
+    static void free(const Notification::T *req);
 };
 
 //------------------------------------------------------------------------------
@@ -133,6 +134,7 @@ struct RequestTraits {
     constexpr size_t size() const;
     static constexpr size_t max_size();
     static Request::T *clone(const Request::T &req);
+    static void free(const Request::T *req);
 };
 
 //------------------------------------------------------------------------------
@@ -173,6 +175,22 @@ inline Notification::T *NotificationTraits::clone(const Notification::T &ntf)
     }
 }
 
+inline void NotificationTraits::free(const Notification::T *ntf)
+{
+    if (!ntf)
+        return;
+
+    switch (ntf->type) {
+#define EACH(x)               \
+    case NotificationType::x: \
+        delete static_cast<const Notification::x *>(ntf); break;
+        EACH_NOTIFICATION_TYPE(EACH)
+    default:
+        assert(false); break;
+#undef EACH
+    }
+}
+
 //------------------------------------------------------------------------------
 constexpr size_t RequestTraits::size() const
 {
@@ -206,6 +224,22 @@ inline Request::T *RequestTraits::clone(const Request::T &req)
     default:
         assert(false);
         return {};
+#undef EACH
+    }
+}
+
+inline void RequestTraits::free(const Request::T *req)
+{
+    if (!req)
+        return;
+
+    switch (req->type) {
+#define EACH(x)               \
+    case RequestType::x: \
+        delete static_cast<const Request::x *>(req); break;
+        EACH_REQUEST_TYPE(EACH)
+    default:
+        assert(false); break;
 #undef EACH
     }
 }
