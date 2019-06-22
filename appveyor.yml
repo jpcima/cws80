@@ -5,9 +5,8 @@ image: Ubuntu
 configuration: Release
 
 install:
-  - sudo add-apt-repository ppa:mhier/libboost-latest
   - sudo apt-get -y update
-  - sudo apt-get -y install build-essential libcairo2-dev libjack-dev libgl-dev libglu-dev libboost1.70-dev
+  - sudo apt-get -y install build-essential libcairo2-dev libjack-dev libgl-dev libglu-dev
   - git submodule update --init --recursive
 
 build_script:

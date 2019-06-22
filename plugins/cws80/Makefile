@@ -102,6 +102,8 @@ BUILD_CXX_FLAGS += -Ithirdparty/nuklear
 BUILD_CXX_FLAGS += -Ithirdparty/ring_buffer
 BUILD_CXX_FLAGS += -Ithirdparty/fmt/include
 BUILD_CXX_FLAGS += -Ithirdparty/gsl-lite/include
+BUILD_CXX_FLAGS += -Ithirdparty/optional-lite/include
+BUILD_CXX_FLAGS += -Ithirdparty/string-view-lite/include
 
 BUILD_CXX_FLAGS += -DNK_INCLUDE_FIXED_TYPES
 BUILD_CXX_FLAGS += -DNK_INCLUDE_STANDARD_IO

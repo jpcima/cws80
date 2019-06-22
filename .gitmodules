@@ -13,3 +13,9 @@
 [submodule "thirdparty/fmt"]
 	path = thirdparty/fmt
 	url = https://github.com/fmtlib/fmt.git
+[submodule "thirdparty/string-view-lite"]
+	path = thirdparty/string-view-lite
+	url = https://github.com/martinmoene/string-view-lite.git
+[submodule "thirdparty/optional-lite"]
+	path = thirdparty/optional-lite
+	url = https://github.com/martinmoene/optional-lite.git
