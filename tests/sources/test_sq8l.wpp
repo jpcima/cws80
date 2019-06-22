@@ -340,6 +340,12 @@ int cmd_shell(int argc, char *argv[])
             }
             else if (op == "pp" || op == "print-program") {
                 dynarray<u8> chunk = host.get_current_program_chunk();
+
+                printf("     ");
+                for (size_t i = 0; i < 16; ++i)
+                    printf(" $%X", i);
+                printf("\n");
+
                 for (size_t i = 0, n = chunk.size(); i < n; ++i) {
                     if (!(i & 15)) printf("%s$%03X:", i ? "\n" : "", i);
                     uint a = chunk[i];
