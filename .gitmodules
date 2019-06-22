@@ -19,3 +19,6 @@
 [submodule "thirdparty/optional-lite"]
 	path = thirdparty/optional-lite
 	url = https://github.com/martinmoene/optional-lite.git
+[submodule "thirdparty/simpleini"]
+	path = thirdparty/simpleini
+	url = https://github.com/jpcima/simpleini.git
