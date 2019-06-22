@@ -2,7 +2,6 @@
 #include "cws/cws80_program.h"
 #include "cws/cws80_data.h"
 #include "utility/types.h"
-#include <boost/shared_ptr.hpp>
 #include <memory>
 
 namespace cws80 {
@@ -12,7 +11,7 @@ public:
     typedef Program::Osc Param;
 
     Osc();
-    void initialize(f64 fs, uint bs, Osc *other);
+    void initialize(f64 fs, uint bs);
     void setparam(const Param *p);
     void reset();
     void generate(i16 *outp, const i8 *syncinp, i8 *syncoutp,
@@ -25,9 +24,7 @@ private:
     // phase
     u32 phase_ = 0;
     // phase increments normalized to fs
-    boost::shared_ptr<u32[]> osc_phi_;
-    //
-    void initialize_tables(f64 fs);
+    u32 *osc_phi_ = nullptr;
 };
 
 }  // namespace cws80

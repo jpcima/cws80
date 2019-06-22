@@ -2,7 +2,6 @@
 #include "cws/cws80_program.h"
 #include "cws/cws80_data.h"
 #include "utility/types.h"
-#include <boost/shared_ptr.hpp>
 #include <memory>
 #include <random>
 
@@ -13,7 +12,7 @@ public:
     typedef Program::Lfo Param;
 
     Lfo();
-    void initialize(f64 fs, uint bs, Lfo *other);
+    void initialize(f64 fs, uint bs);
     void setparam(const Param *p);
     void reset();
     void generate(i8 *outp, const i8 *const mod, uint n);  // range -63..+63
@@ -27,9 +26,7 @@ private:
     // noise generator
     std::minstd_rand noisernd_;
     // Q8,24 phase increments
-    boost::shared_ptr<u32[]> lfo_phi_;
-    //
-    void initialize_tables(f64 fs);
+    u32 *lfo_phi_ = nullptr;
 };
 
 }  // namespace cws80

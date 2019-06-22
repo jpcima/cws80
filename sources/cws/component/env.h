@@ -2,7 +2,6 @@
 #include "cws/cws80_program.h"
 #include "cws/cws80_data.h"
 #include "utility/types.h"
-#include <boost/shared_ptr.hpp>
 #include <memory>
 
 namespace cws80 {
@@ -13,7 +12,7 @@ struct Env {
     enum class State { Off, Atk, Dcy, At2, Sus, Rel };
 
     Env();
-    void initialize(f64 fs, uint bs, const Env *other);
+    void initialize(f64 fs, uint bs);
     void setparam(const Param *p);
     void reset();
     void trigger(uint vel);
@@ -30,7 +29,7 @@ private:
     const Param *param_ = nullptr;
     // which state it's currently in
     State state_ = State::Off;
-    // levels in Q8, 24 units
+    // levels in Q8,24 units
     i32 l1_ = 0, l2_ = 0, l3_ = 0;
     // slopes in Q8,24 units per sample
     i32 r1_ = 0, r2_ = 0, r3_ = 0, r4_ = 0;
@@ -39,9 +38,7 @@ private:
     // whether key has been released yet
     bool rel_ = false;
     // Q16,16 envelope times normalized to sample rate
-    boost::shared_ptr<u32[]> times_;
-    //
-    void initialize_tables(f64 fs);
+    u32 *times_ = nullptr;
 };
 
 }  // namespace cws80

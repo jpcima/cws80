@@ -1,6 +1,8 @@
 #include "cws/component/sat.h"
 #include "cws/component/tables.h"
 #include "utility/arithmetic.h"
+#include <memory>
+#include <mutex>
 #include <math.h>
 
 namespace cws80 {
@@ -10,7 +12,16 @@ enum {
     Sat_oversample = 4,
 };
 
-void Sat::initialize(f64 fs, uint bs, Sat *other)
+///
+struct SatConstant {
+    i16 sat_table[Sat_tablen];
+    SatConstant();
+};
+static std::unique_ptr<SatConstant> Sat_const;
+static std::mutex Sat_const_mutex;
+
+///
+void Sat::initialize(f64 fs, uint bs)
 {
     (void)fs;
     (void)bs;
@@ -23,13 +34,9 @@ void Sat::initialize(f64 fs, uint bs, Sat *other)
     aaflt2_ = realfir<f32>(Sat_aa4x.size());
 #endif
 
-    if (other) {
-        sat_table_ = other->sat_table_;
-    }
-    else {
-        sat_table_.reset(new i16[Sat_tablen]);
-        initialize_tables();
-    }
+    std::lock_guard<std::mutex> lock(Sat_const_mutex);
+    if (!Sat_const) Sat_const.reset(new SatConstant);
+    sat_table_ = Sat_const->sat_table;
 }
 
 void Sat::generate(const i32 *inp, i16 *outp, uint n)
@@ -40,7 +47,7 @@ void Sat::generate(const i32 *inp, i16 *outp, uint n)
         return;
     }
 
-    const i16 *sat_table = sat_table_.get();
+    const i16 *sat_table = sat_table_;
 
 #ifdef CWS_FIXED_POINT_FIR_FILTERS
     fir32l<i32> &aaflt1 = aaflt1_;
@@ -80,10 +87,8 @@ void Sat::generate(const i32 *inp, i16 *outp, uint n)
     }
 }
 
-void Sat::initialize_tables()
+SatConstant::SatConstant()
 {
-    i16 *sat_table = sat_table_.get();
-
     scoped_fesetround(FE_TONEAREST);
     for (uint i = 0; i < Sat_tablen; ++i) {
         f64 r = (f64)i / (Sat_tablen - 1);

@@ -30,7 +30,7 @@ typedef std::shared_ptr<mod_buffer> mod_buffer_ptr;
 class Voice {
 public:
     ~Voice();
-    void initialize(f64 fs, uint bs, pb_alloc<> &alloc, Voice *other);
+    void initialize(f64 fs, uint bs, pb_alloc<> &alloc);
 
     void reset();
     void synthesize_adding(i16 *outl, i16 *outr, uint nframes);

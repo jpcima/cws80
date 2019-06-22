@@ -1,36 +1,44 @@
 #include "cws/component/lfo.h"
 #include "cws/component/tables.h"
 #include "utility/arithmetic.h"
+#include <map>
+#include <memory>
+#include <mutex>
 #include <math.h>
 
 #pragma message("TODO implement LFO: L1, L2, DELAY, MOD")
 
 namespace cws80 {
 
-static bool Lfo_tables_init = false;
-static i8 Lfo_tri[256];
-static void Lfo_generate_tri();
+///
+struct LfoConstant {
+    u32 lfo_phi[64];
+    explicit LfoConstant(f64 fs);
+};
+static std::map<f64, std::unique_ptr<LfoConstant>> Lfo_const;
+static std::mutex Lfo_const_mutex;
 
+///
+static volatile bool Lfo_wavetables_init = false;
+static std::mutex Lfo_wavetables_mutex;
+static void Lfo_generate_waves();
+static i8 Lfo_tri[256];
+
+///
 Lfo::Lfo()
     : param_(&initial_program().lfos[0])
 {
-    if (!Lfo_tables_init) {
-        Lfo_generate_tri();
-        Lfo_tables_init = true;
-    }
+    Lfo_generate_waves();
 }
 
-void Lfo::initialize(f64 fs, uint bs, Lfo *other)
+void Lfo::initialize(f64 fs, uint bs)
 {
     (void)bs;
 
-    if (other) {
-        lfo_phi_ = other->lfo_phi_;
-    }
-    else {
-        lfo_phi_.reset(new u32[64]);
-        initialize_tables(fs);
-    }
+    std::lock_guard<std::mutex> lock(Lfo_const_mutex);
+    std::unique_ptr<LfoConstant> &constant = Lfo_const[fs];
+    if (!constant) constant.reset(new LfoConstant(fs));
+    lfo_phi_ = constant->lfo_phi;
 }
 
 void Lfo::setparam(const Param *p)
@@ -106,25 +114,29 @@ uint Lfo::freqidx(f32 f)
     return (f - f0 < f1 - f) ? i : (i + 1);
 }
 
-void Lfo::initialize_tables(f64 fs)
+LfoConstant::LfoConstant(f64 fs)
 {
-    u32 *lfo_phi = lfo_phi_.get();
-
     scoped_fesetround(FE_TONEAREST);
     for (uint i = 0; i < 64; ++i)
         lfo_phi[i] = fx8(256 * Lfo_freqs[i] / fs);
 }
 
-static void Lfo_generate_tri()
+static void Lfo_generate_waves()
 {
-    i8 *tri = Lfo_tri;
+    if (Lfo_wavetables_init)
+        return;
+
+    std::lock_guard<std::mutex> lock(Lfo_wavetables_mutex);
+    if (Lfo_wavetables_init)
+        return;
+
     scoped_fesetround(FE_TONEAREST);
 
     for (uint i = 0; i < 256; ++i) {
         int n = clamp((int)i, 0, 64) - clamp((int)i - 64, 0, 128) +
                 clamp((int)i - 192, 0, 63);
         f64 val = n * 127. / 64.;
-        tri[i] = (i8)lrint(val);
+        Lfo_tri[i] = (i8)lrint(val);
     }
 }
 

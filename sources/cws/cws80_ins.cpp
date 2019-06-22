@@ -4,6 +4,7 @@
 #include "utility/arithmetic.h"
 #include "utility/scope_guard.h"
 #include <algorithm>
+#include <mutex>
 #include <limits>
 #include <stdio.h>
 #include <math.h>
@@ -11,14 +12,15 @@
 namespace cws80 {
 
 static uint Ins_vel2_table[127];
-static bool Ins_table_init = false;
+static bool Ins_tables_init = false;
+static std::mutex Ins_tables_mutex;
 
 //------------------------------------------------------------------------------
 Voice::~Voice()
 {
 }
 
-void Voice::initialize(f64 fs, uint bs, pb_alloc<> &alloc, Voice *other)
+void Voice::initialize(f64 fs, uint bs, pb_alloc<> &alloc)
 {
     alloc_ = &alloc;
     bs_ = bs;
@@ -28,20 +30,17 @@ void Voice::initialize(f64 fs, uint bs, pb_alloc<> &alloc, Voice *other)
 
     for (uint i = 0; i < 4; ++i) {
         Env &env = env_[i];
-        Env *other_env = other ? &other->env_[0] : (i == 0) ? nullptr : &env_[0];
-        env.initialize(fs, bs, other_env);
+        env.initialize(fs, bs);
         env.setparam(&pgm_.envs[i]);
     }
     for (uint i = 0; i < 3; ++i) {
         Lfo &lfo = lfo_[i];
-        Lfo *other_lfo = other ? &other->lfo_[0] : (i == 0) ? nullptr : &lfo_[0];
-        lfo.initialize(fs, bs, other_lfo);
+        lfo.initialize(fs, bs);
         lfo.setparam(&pgm_.lfos[i]);
     }
     for (uint i = 0; i < 3; ++i) {
         Osc &osc = osc_[i];
-        Osc *other_osc = other ? &other->osc_[0] : (i == 0) ? nullptr : &osc_[0];
-        osc.initialize(fs, bs, other_osc);
+        osc.initialize(fs, bs);
         osc.setparam(&pgm_.oscs[i]);
         Dca &dca = dca_[i];
         dca.initialize(fs, bs);
@@ -53,8 +52,7 @@ void Voice::initialize(f64 fs, uint bs, pb_alloc<> &alloc, Voice *other)
     vcf.setparam(&pgm_.misc);
 
     Sat &sat = sat_;
-    Sat *other_sat = other ? &other->sat_ : nullptr;
-    sat.initialize(fs, bs, other_sat);
+    sat.initialize(fs, bs);
 
     Dca4 &dca4 = dca4_;
     dca4.initialize(fs, bs);
@@ -255,11 +253,6 @@ Instrument::Instrument(FxMaster &master)
 {
     master_ = &master;
 
-    if (!Ins_table_init) {
-        initialize_tables();
-        Ins_table_init = true;
-    }
-
     load_default_banks();
     enable_program(selected_program());
 }
@@ -275,18 +268,24 @@ void Instrument::initialize(f64 fs, uint bs)
 
     for (uint p = 0; p < polymax; ++p) {
         Voice &vc = voices_[p];
-        vc.initialize(fs, bs, alloc, (p == 0) ? nullptr : &voices_[0]);
+        vc.initialize(fs, bs, alloc);
         vc.mod(Mod::WHEEL) = mb_wheel_;
         vc.mod(Mod::PEDAL) = mb_pedal_;
         vc.mod(Mod::XCTRL) = mb_xctrl_;
     }
-
 
     fs_ = fs;
 }
 
 void Instrument::initialize_tables()
 {
+    if (Ins_tables_init)
+        return;
+
+    std::lock_guard<std::mutex> lock(Ins_tables_mutex);
+    if (Ins_tables_init)
+        return;
+
     scoped_fesetround(FE_TONEAREST);
 
     for (uint i = 0; i < 127; ++i)

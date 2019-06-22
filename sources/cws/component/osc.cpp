@@ -1,5 +1,8 @@
 #include "cws/component/osc.h"
 #include "utility/arithmetic.h"
+#include <map>
+#include <memory>
+#include <mutex>
 #include <math.h>
 
 #pragma message("TODO implement OSC")
@@ -10,22 +13,28 @@ namespace cws80 {
 static constexpr uint osc_phi_oversample = 8;
 static constexpr uint osc_phi_tablen = 128 * osc_phi_oversample;
 
+///
+struct OscConstant {
+    u32 osc_phi[128 * osc_phi_oversample];
+    explicit OscConstant(f64 fs);
+};
+static std::map<f64, std::unique_ptr<OscConstant>> Osc_const;
+static std::mutex Osc_const_mutex;
+
+///
 Osc::Osc()
     : param_(&initial_program().oscs[0])
 {
 }
 
-void Osc::initialize(f64 fs, uint bs, Osc *other)
+void Osc::initialize(f64 fs, uint bs)
 {
     (void)bs;
 
-    if (other) {
-        osc_phi_ = other->osc_phi_;
-    }
-    else {
-        osc_phi_.reset(new u32[128 * osc_phi_oversample]);
-        initialize_tables(fs);
-    }
+    std::lock_guard<std::mutex> lock(Osc_const_mutex);
+    std::unique_ptr<OscConstant> &constant = Osc_const[fs];
+    if (!constant) constant.reset(new OscConstant(fs));
+    osc_phi_ = constant->osc_phi;
 }
 
 void Osc::setparam(const Param *p)
@@ -58,7 +67,7 @@ void Osc::generate(i16 *outp, const i8 *syncinp, i8 *syncoutp,
     // bool oneshot = wave_oneshot(wavenum);
 
     u32 phase = phase_;
-    const u32 *osc_phi = osc_phi_.get();
+    const u32 *osc_phi = osc_phi_;
 
     for (uint i = 0; i < n; ++i) {
         int mod = mod1[i] * modamt1 + mod2[i] * modamt2;  // -7938..+7938
@@ -103,9 +112,8 @@ void Osc::generate(i16 *outp, const i8 *syncinp, i8 *syncoutp,
     phase_ = phase;
 }
 
-void Osc::initialize_tables(f64 fs)
+OscConstant::OscConstant(f64 fs)
 {
-    u32 *osc_phi = osc_phi_.get();
     for (uint i = 0; i < 128; ++i) {
         for (uint j = 0, o = osc_phi_oversample; j < o; ++j) {
             uint idx = j + i * o;

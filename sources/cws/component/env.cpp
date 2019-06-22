@@ -2,6 +2,9 @@
 #include "cws/component/tables.h"
 #include "utility/arithmetic.h"
 #include <algorithm>
+#include <map>
+#include <memory>
+#include <mutex>
 #include <math.h>
 #include <stdio.h>
 #include <assert.h>
@@ -16,22 +19,28 @@
 
 namespace cws80 {
 
+///
+struct EnvConstant {
+    u32 times[64];
+    explicit EnvConstant(f64 fs);
+};
+static std::map<f64, std::unique_ptr<EnvConstant>> Env_const;
+static std::mutex Env_const_mutex;
+
+///
 Env::Env()
     : param_(&initial_program().envs[0])
 {
 }
 
-void Env::initialize(f64 fs, uint bs, const Env *other)
+void Env::initialize(f64 fs, uint bs)
 {
     (void)bs;
 
-    if (other) {
-        times_ = other->times_;
-    }
-    else {
-        times_.reset(new u32[64]);
-        initialize_tables(fs);
-    }
+    std::lock_guard<std::mutex> lock(Env_const_mutex);
+    std::unique_ptr<EnvConstant> &constant = Env_const[fs];
+    if (!constant) constant.reset(new EnvConstant(fs));
+    times_ = constant->times;
 }
 
 void Env::setparam(const Param *p)
@@ -57,7 +66,7 @@ void Env::trigger(uint vel)
     (void)vel;
 
     const Param &param = *param_;
-    const u32 *times = times_.get();
+    const u32 *times = times_;
 
     // times in samples
     u32 t1 = std::max(times[param.T1], 1u);
@@ -206,10 +215,8 @@ const char *Env::nameof(State s)
     return names[(uint)s];
 }
 
-void Env::initialize_tables(f64 fs)
+EnvConstant::EnvConstant(f64 fs)
 {
-    u32 *times = times_.get();
-
     scoped_fesetround(FE_TONEAREST);
     for (uint i = 0; i < 64; ++i)
         times[i] = lrint(Env_times[i] * fs);
