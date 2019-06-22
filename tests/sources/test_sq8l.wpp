@@ -11,6 +11,7 @@
 #include <memory>
 #include <cmath>
 #include <cstdio>
+#include <io.h>
 
 struct Subcommand {
     const char *name;
@@ -81,7 +82,7 @@ int cmd_synth(int argc, char *argv[])
 
     uint count = argc - optind;
     if (count != 0) {
-        fprintf(stderr, "Bad number of positional arguments.");
+        fprintf(stderr, "Bad number of positional arguments.\n");
         return 1;
     }
 
@@ -151,7 +152,7 @@ int cmd_list_programs(int argc, char *argv[])
 
     uint count = argc - optind;
     if (count != 0) {
-        fprintf(stderr, "Bad number of positional arguments.");
+        fprintf(stderr, "Bad number of positional arguments.\n");
         return 1;
     }
 
@@ -173,6 +174,53 @@ int cmd_list_programs(int argc, char *argv[])
 }
 
 //------------------------------------------------------------------------------
+int cmd_read_program(int argc, char *argv[])
+{
+    const char *vst_name = vst_default_name;
+    constexpr f32 srate = default_srate;
+    constexpr u32 bsize = default_bsize;
+    u32 program = 0;
+
+    for (int c; (c = getopt(argc, argv, "")) != -1;) {
+        switch (c) {
+        default:
+            return 1;
+        }
+    }
+
+    uint count = argc - optind;
+    if (count != 1) {
+        fprintf(stderr, "Bad number of positional arguments.\n");
+        return 1;
+    }
+
+    program = strtoul(argv[optind], nullptr, 0);
+
+    Host_SQ8L host(vst_name, srate, bsize);
+    if (!host)
+        return 1;
+
+    u32 num_programs = host.num_programs();
+    if (program >= num_programs) {
+        fprintf(stderr, "Program number out of range.\n");
+        return 1;
+    }
+
+    host.set_current_program(program);
+    dynarray<u8> chunk = host.get_current_program_chunk();
+
+    if (_isatty(_fileno(stdout))) {
+        fprintf(stderr, "Not writing binary data to the terminal.\n");
+        return 1;
+    }
+
+    fwrite(chunk.data(), 1, chunk.size(), stdout);
+    fflush(stdout);
+
+    return 0;
+}
+
+//------------------------------------------------------------------------------
 int cmd_shell(int argc, char *argv[])
 {
     const char *vst_name = vst_default_name;
@@ -188,7 +236,7 @@ int cmd_shell(int argc, char *argv[])
 
     uint count = argc - optind;
     if (count != 0) {
-        fprintf(stderr, "Bad number of positional arguments.");
+        fprintf(stderr, "Bad number of positional arguments.\n");
         return 1;
     }
 
@@ -251,6 +299,7 @@ int cmd_shell(int argc, char *argv[])
 Subcommand subcommands[16] = {
     {"synth", "Synthesize a note", &cmd_synth},
     {"list-programs", "List programs", &cmd_list_programs},
+    {"read-program", "Read program", &cmd_read_program},
     {"shell", "Run test shell", &cmd_shell},
     {},
 };
