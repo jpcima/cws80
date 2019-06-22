@@ -294,7 +294,7 @@ gsl::span<const FontRequest> UIView::Impl::font_requests()
         FontRequest::Memory(21, ui::fnt_scp_black_italic_data,
                             sizeof(ui::fnt_scp_black_italic_data)),
     };
-    return fontreqs;
+    return gsl::make_span(fontreqs);
 }
 
 void UIView::Impl::create_main_button_row(im_rectf bounds)
