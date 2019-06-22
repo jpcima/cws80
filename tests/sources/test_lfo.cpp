@@ -96,7 +96,7 @@ static void process()
 
     Lfo lfo;
     lfo.setparam(&Lfop);
-    lfo.initialize(fs, B, nullptr);
+    lfo.initialize(fs, B);
 
     std::sort(RT.begin(), RT.end());
     uint nT = 0;

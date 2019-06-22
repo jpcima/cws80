@@ -32,7 +32,7 @@ bin/test_env: $(test_env_OBJS)
 	@install -d $(dir $@)
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-bin/test_env: CXXFLAGS += -DFMT_HEADER_ONLY -Isources -Iresources -Ithirdparty/fmt/include -Ithirdparty/gsl-lite/include
+bin/test_env: CXXFLAGS += -DFMT_HEADER_ONLY -Isources -Iresources -Ithirdparty/fmt/include -Ithirdparty/gsl-lite/include -Ithirdparty/optional-lite/include -Ithirdparty/string-view-lite/include
 
 -include $(test_env_OBJS:%.o=%.d)
 
@@ -49,7 +49,7 @@ bin/test_lfo: $(test_lfo_OBJS)
 	@install -d $(dir $@)
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-bin/test_lfo: CXXFLAGS += -DFMT_HEADER_ONLY -Isources -Iresources -Ithirdparty/fmt/include -Ithirdparty/gsl-lite/include
+bin/test_lfo: CXXFLAGS += -DFMT_HEADER_ONLY -Isources -Iresources -Ithirdparty/fmt/include -Ithirdparty/gsl-lite/include -Ithirdparty/optional-lite/include -Ithirdparty/string-view-lite/include
 
 -include $(test_lfo_OBJS:%.o=%.d)
 
@@ -64,7 +64,7 @@ bin/test_sq8l.exe: $(test_sq8l_OBJS)
 
 bin/test_sq8l.exe: LDFLAGS += -static
 
-bin/test_sq8l.exe: CXXFLAGS += -DFMT_HEADER_ONLY -Isources -Iresources -Ithirdparty/vestige -Ithirdparty/fmt/include -Ithirdparty/gsl-lite/include
+bin/test_sq8l.exe: CXXFLAGS += -DFMT_HEADER_ONLY -Isources -Iresources -Ithirdparty/vestige -Ithirdparty/fmt/include -Ithirdparty/gsl-lite/include -Ithirdparty/optional-lite/include -Ithirdparty/string-view-lite/include
 bin/test_sq8l.exe: LDFLAGS += -lsndfile
 
 -include $(test_sq8l_OBJS:%.o=%.d)

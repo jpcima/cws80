@@ -25,6 +25,6 @@ bin/cws80_tool: $(cws80_tool_OBJS)
 	@install -d $(dir $@)
 	$(CXX) -o $@ $^
 
-bin/cws80_tool: CXXFLAGS += -DFMT_HEADER_ONLY -Isources -Iresources -Ithirdparty/vestige -Ithirdparty/fmt/include -Ithirdparty/gsl-lite/include
+bin/cws80_tool: CXXFLAGS += -DFMT_HEADER_ONLY -Isources -Iresources -Ithirdparty/vestige -Ithirdparty/fmt/include -Ithirdparty/gsl-lite/include -Ithirdparty/optional-lite/include -Ithirdparty/string-view-lite/include
 
 -include $(cws80_tool_OBJS:%.o=%.d)

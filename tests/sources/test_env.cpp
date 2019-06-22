@@ -106,7 +106,7 @@ static void process()
 
     Env env;
     env.setparam(&Envp);
-    env.initialize(FS, B, nullptr);
+    env.initialize(FS, B);
 
     std::sort(RT.begin(), RT.end());
     std::sort(RR.begin(), RR.end());
