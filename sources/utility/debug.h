@@ -17,8 +17,8 @@
 
 #ifdef NDEBUG
 
-#define debug(...)
-#define debug_exception(...)
+#define debug(...) do {} while (0)
+#define debug_exception(...) do {} while (0)
 
 #else
 
