@@ -117,6 +117,7 @@ BUILD_CXX_FLAGS += -DSTBI_MALLOC=malloc
 BUILD_CXX_FLAGS += -DSTBI_REALLOC=realloc
 BUILD_CXX_FLAGS += -DSTBI_FREE=free
 BUILD_CXX_FLAGS += -DFMT_HEADER_ONLY
+BUILD_CXX_FLAGS += -D_USE_MATH_DEFINES
 
 # release+debug flags
 #BUILD_CXX_FLAGS += -g -UNDEBUG
@@ -128,7 +129,7 @@ LINK_FLAGS += $(shell pkg-config --libs glew)
 endif
 
 # find Tcl/Tk
-TCLTK_PATHS := \
+TCLTK_PATHS ?= \
 	/usr/$(shell $(CC) -dumpmachine)/lib \
 	/usr/lib \
 	/usr/local/lib \

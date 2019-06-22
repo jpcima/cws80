@@ -1,13 +1,34 @@
 # Build settings for Appveyor CI
 
-image: Ubuntu
-
 configuration: Release
 
-install:
-  - sudo apt-get -y update
-  - sudo apt-get -y install build-essential libcairo2-dev libjack-dev libgl-dev libglu-dev
-  - git submodule update --init --recursive
+environment:
+  matrix:
+    - build_type: mingw32
+    - build_type: linux
 
-build_script:
-  - make -j
+for:
+  -
+    matrix:
+      only:
+        - build_type: mingw32
+    image: Visual Studio 2017
+    install:
+      - git config core.symlinks true
+      - git reset --hard
+      - git submodule update --init --recursive
+      - C:\msys64\usr\bin\bash -l -c 'pacman -S --needed --noconfirm mingw-w64-i686-toolchain mingw-w64-i686-cairo mingw-w64-i686-tcl mingw-w64-i686-tk'
+    build_script:
+      - C:\msys64\usr\bin\bash -l -c 'PATH="/mingw32/bin:$PATH" TCLTK_PATHS=/mingw32/lib mingw32-make -C "$APPVEYOR_BUILD_FOLDER"'
+  -
+    matrix:
+      only:
+        - build_type: linux
+    image: Ubuntu
+    install:
+      - git submodule update --init --recursive
+      - sudo apt-get -y update
+      - sudo apt-get -y install build-essential libcairo2-dev libjack-dev libgl-dev libglu-dev tcl-dev tk-dev
+    build_script:
+      - make -j
+

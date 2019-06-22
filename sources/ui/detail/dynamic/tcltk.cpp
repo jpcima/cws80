@@ -95,9 +95,9 @@ Dynamic_TclTk::Dynamic_TclTk(const char *version)
 bool Dynamic_TclTk::load_from_handles(Dl_Handle_U htcl, Dl_Handle_U htk)
 {
     if (!htcl || !htk ||
-        !(dynamic_Tcl_CreateInterp = (Tcl_Interp *(*)())dlsym(htcl.get(), "Tcl_CreateInterp")) ||
-        !(dynamic_Tcl_Init = (int (*)(Tcl_Interp *))dlsym(htcl.get(), "Tcl_Init")) ||
-        !(dynamic_Tk_Init = (int (*)(Tcl_Interp *))dlsym(htk.get(), "Tk_Init")))
+        !(dynamic_Tcl_CreateInterp = (Tcl_Interp *(*)())Dl_sym(htcl.get(), "Tcl_CreateInterp")) ||
+        !(dynamic_Tcl_Init = (int (*)(Tcl_Interp *))Dl_sym(htcl.get(), "Tcl_Init")) ||
+        !(dynamic_Tk_Init = (int (*)(Tcl_Interp *))Dl_sym(htk.get(), "Tk_Init")))
     {
         return false;
     }
