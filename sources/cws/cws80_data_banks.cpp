@@ -37,17 +37,17 @@ static const u8 bank11[] = {
 };
 
 std::array<gsl::span<const u8>, 11> extra_bank_data{{
-    {bank1, sizeof(bank1)},
-    {bank2, sizeof(bank2)},
-    {bank3, sizeof(bank3)},
-    {bank4, sizeof(bank4)},
-    {bank5, sizeof(bank5)},
-    {bank6, sizeof(bank6)},
-    {bank7, sizeof(bank7)},
-    {bank8, sizeof(bank8)},
-    {bank9, sizeof(bank9)},
-    {bank10, sizeof(bank10)},
-    {bank11, sizeof(bank11)},
+    gsl::make_span(bank1),
+    gsl::make_span(bank2),
+    gsl::make_span(bank3),
+    gsl::make_span(bank4),
+    gsl::make_span(bank5),
+    gsl::make_span(bank6),
+    gsl::make_span(bank7),
+    gsl::make_span(bank8),
+    gsl::make_span(bank9),
+    gsl::make_span(bank10),
+    gsl::make_span(bank11),
 }};
 
 }  // namespace cws80
