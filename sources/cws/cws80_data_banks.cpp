@@ -37,17 +37,17 @@ static const u8 bank11[] = {
 };
 
 std::array<gsl::span<const u8>, 11> extra_bank_data{{
-    bank1,
-    bank2,
-    bank3,
-    bank4,
-    bank5,
-    bank6,
-    bank7,
-    bank8,
-    bank9,
-    bank10,
-    bank11,
+    {bank1, sizeof(bank1)},
+    {bank2, sizeof(bank2)},
+    {bank3, sizeof(bank3)},
+    {bank4, sizeof(bank4)},
+    {bank5, sizeof(bank5)},
+    {bank6, sizeof(bank6)},
+    {bank7, sizeof(bank7)},
+    {bank8, sizeof(bank8)},
+    {bank9, sizeof(bank9)},
+    {bank10, sizeof(bank10)},
+    {bank11, sizeof(bank11)},
 }};
 
 }  // namespace cws80
