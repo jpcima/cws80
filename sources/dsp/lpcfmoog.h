@@ -1,7 +1,7 @@
 #pragma once
 #include "utility/arithmetic.h"
+#include "utility/attributes.h"
 #include "utility/types.h"
-#include <boost/config.hpp>
 #include <array>
 #include <cmath>
 
@@ -63,13 +63,13 @@ namespace lpcfmoog {
     //------------------------------------------------------------------------------
     namespace detail {
         template <>
-        BOOST_FORCEINLINE f64 detail::tuning_traits<tun_direct>::compute_g(f64 f)
+        ForceInline f64 detail::tuning_traits<tun_direct>::compute_g(f64 f)
         {
             return 1 - std::exp(-2 * M_PI * f);
         }
 
         template <>
-        BOOST_FORCEINLINE f64 detail::tuning_traits<tun_table>::compute_g(f64 f)
+        ForceInline f64 detail::tuning_traits<tun_table>::compute_g(f64 f)
         {
             constexpr size_t ftabsize = 256;
             const std::array<f32, ftabsize + 1> &ftable = ftable_<ftabsize>;
@@ -80,7 +80,7 @@ namespace lpcfmoog {
             return ft[0] + (index - i0) * (ft[1] - ft[0]);
         }
 
-        static BOOST_FORCEINLINE f64 correction(f64 f, f64 q)
+        static ForceInline f64 correction(f64 f, f64 q)
         {
             const f64 p00 = 47.7075588396789e-003, p10 = 1.58879917317302e+000,
                       p01 = -203.211294022804e-003, p20 = 1.58534782723064e+000,
@@ -98,13 +98,13 @@ namespace lpcfmoog {
 
     namespace detail {
         template <>
-        BOOST_FORCEINLINE f64 non_linearity_traits<nl_tanh>::saturate(f64 x)
+        ForceInline f64 non_linearity_traits<nl_tanh>::saturate(f64 x)
         {
             return std::tanh(x);
         }
 
         template <>
-        BOOST_FORCEINLINE f64 non_linearity_traits<nl_fast_tanh>::saturate(f64 xx)
+        ForceInline f64 non_linearity_traits<nl_fast_tanh>::saturate(f64 xx)
         {
             f32 x = (f32)xx;
             f32 x2 = x * x;

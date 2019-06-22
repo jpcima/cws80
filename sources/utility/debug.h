@@ -1,8 +1,14 @@
 #pragma once
 #include <fmt/format.h>
-#include <boost/core/demangle.hpp>
 #include <cstdio>
 #include <cstddef>
+
+#if defined(__GNUC__)
+#include "scope_guard.h"
+#include <cxxabi.h>
+#include <stdexcept>
+#include <cstdlib>
+#endif
 
 #define DEBUG_INCLUDE_SOURCE_LOCATION 1
 #define DEBUG_INCLUDE_THREAD_ID 1
@@ -22,18 +28,18 @@
        DEBUG_SOURCE_LOCATION_FORMAT f,          \
        DEBUG_FILE_NAME, __LINE__,               \
        ##__VA_ARGS__)
-#define debug_exception(ex)                                    \
-  do {                                                         \
-    const std::exception &ex__##__LINE__ = (ex);               \
-    const char *msg__##__LINE__ = ex__##__LINE__.what();       \
-    msg__##__LINE__ = msg__##__LINE__ ?                        \
-                      msg__##__LINE__ : "<no message>";        \
-    ::debug_detail::print(                                     \
-        "D: "                                                  \
-        DEBUG_SOURCE_LOCATION_FORMAT "exception {}: {}",       \
-        DEBUG_FILE_NAME, __LINE__,                             \
-        boost::core::demangle(typeid(ex__##__LINE__).name()),  \
-        msg__##__LINE__);                                      \
+#define debug_exception(ex)                                         \
+  do {                                                              \
+    const std::exception &ex__##__LINE__ = (ex);                    \
+    const char *msg__##__LINE__ = ex__##__LINE__.what();            \
+    msg__##__LINE__ = msg__##__LINE__ ?                             \
+                      msg__##__LINE__ : "<no message>";             \
+    ::debug_detail::print(                                          \
+        "D: "                                                       \
+        DEBUG_SOURCE_LOCATION_FORMAT "exception {}: {}",            \
+        DEBUG_FILE_NAME, __LINE__,                                  \
+        debug_detail::type_string(typeid(ex__##__LINE__).name()),   \
+        msg__##__LINE__);                                           \
   } while (0)
 
 namespace debug_detail {
@@ -58,6 +64,23 @@ inline void print(const char *f, A &&... args)
     fputc('\n', out);
 #else
     OutputDebugStringA(fmt::format(f, std::forward<A>(args)...).c_str());
+#endif
+}
+
+inline std::string type_string(const char *name)
+{
+#if defined(__GNUC__)
+    size_t size = 0;
+    int status = 0;
+    char *dem = abi::__cxa_demangle(name, nullptr, &size, &status);
+    if (status != 0) {
+        if (status == -1) throw std::bad_alloc();
+        else throw std::runtime_error("cannot demangle");
+    }
+    SCOPE(exit) { free(dem); };
+    return std::string(dem, size);
+#else
+    return name;
 #endif
 }
 

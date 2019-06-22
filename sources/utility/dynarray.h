@@ -1,5 +1,5 @@
 #pragma once
-#include <boost/config.hpp>
+#include "attributes.h"
 #include <algorithm>
 #include <memory>
 
@@ -17,17 +17,17 @@ public:
     typedef std::reverse_iterator<T *> reverse_iterator;
     typedef std::reverse_iterator<const T *> const_reverse_iterator;
 
-    BOOST_FORCEINLINE dynarray() noexcept {}
-    BOOST_FORCEINLINE explicit dynarray(size_t size) { reset(size); }
-    template <class I> BOOST_FORCEINLINE dynarray(I first, I last)
+    ForceInline dynarray() noexcept {}
+    ForceInline explicit dynarray(size_t size) { reset(size); }
+    template <class I> ForceInline dynarray(I first, I last)
     {
         assign(first, last);
     }
-    BOOST_FORCEINLINE explicit dynarray(std::initializer_list<T> ilist)
+    ForceInline explicit dynarray(std::initializer_list<T> ilist)
     {
         assign(ilist);
     }
-    BOOST_FORCEINLINE dynarray(size_t count, const T &value)
+    ForceInline dynarray(size_t count, const T &value)
     {
         assign(count, value);
     }
@@ -40,15 +40,15 @@ public:
     void swap(dynarray &other) noexcept;
 
     template <class I> void assign(I first, I last);
-    BOOST_FORCEINLINE void assign(std::initializer_list<T> ilist)
+    ForceInline void assign(std::initializer_list<T> ilist)
     {
         assign(ilist.begin(), ilist.end());
     }
     void assign(size_t count, const T &value);
 
-    BOOST_FORCEINLINE T *data() const noexcept { return this->get(); }
-    BOOST_FORCEINLINE size_t size() const noexcept { return size_; }
-    BOOST_FORCEINLINE bool empty() const noexcept { return size_ == 0; }
+    ForceInline T *data() const noexcept { return this->get(); }
+    ForceInline size_t size() const noexcept { return size_; }
+    ForceInline bool empty() const noexcept { return size_ == 0; }
 
     using std::unique_ptr<T[]>::operator[];
     using std::unique_ptr<T[]>::operator bool;
@@ -56,20 +56,20 @@ public:
     T &at(size_t pos);
     const T &at(size_t pos) const;
 
-    BOOST_FORCEINLINE T &front() noexcept { return (*this)[0]; }
-    BOOST_FORCEINLINE const T &front() const noexcept { return (*this)[0]; }
-    BOOST_FORCEINLINE T &back() noexcept { return (*this)[size_ - 1]; }
-    BOOST_FORCEINLINE const T &back() const noexcept
+    ForceInline T &front() noexcept { return (*this)[0]; }
+    ForceInline const T &front() const noexcept { return (*this)[0]; }
+    ForceInline T &back() noexcept { return (*this)[size_ - 1]; }
+    ForceInline const T &back() const noexcept
     {
         return (*this)[size_ - 1];
     }
 
-    BOOST_FORCEINLINE T *begin() noexcept { return data(); }
-    BOOST_FORCEINLINE const T *begin() const noexcept { return data(); }
-    BOOST_FORCEINLINE const T *cbegin() const noexcept { return data(); }
-    BOOST_FORCEINLINE T *end() noexcept { return data() + size_; }
-    BOOST_FORCEINLINE const T *end() const noexcept { return data() + size_; }
-    BOOST_FORCEINLINE const T *cend() const noexcept { return data() + size_; }
+    ForceInline T *begin() noexcept { return data(); }
+    ForceInline const T *begin() const noexcept { return data(); }
+    ForceInline const T *cbegin() const noexcept { return data(); }
+    ForceInline T *end() noexcept { return data() + size_; }
+    ForceInline const T *end() const noexcept { return data() + size_; }
+    ForceInline const T *cend() const noexcept { return data() + size_; }
 
     dynarray(dynarray &&other) noexcept = default;
     dynarray &operator=(dynarray &&other) noexcept = default;
@@ -85,7 +85,7 @@ public:
     {
         return std::equal(begin(), end(), other.begin(), other.end());
     }
-    BOOST_FORCEINLINE bool operator!=(const dynarray &other)
+    ForceInline bool operator!=(const dynarray &other)
     {
         return !operator==(other);
     }

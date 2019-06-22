@@ -21,6 +21,7 @@
 #include <thread>
 #include <mutex>
 #include <cstdio>
+#include <unistd.h>
 
 namespace cws80 {
 
