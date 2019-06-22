@@ -75,9 +75,9 @@ Dynamic_TclTk::Dynamic_TclTk(const char *version)
                 // attempt load of tcl/tk library pair
                 std::string tcl_path = fmt::format("{}{}", dir_path, name);
                 std::string tk_path = fmt::format("{}libtk{}.{}.so", dir_path, vermaj, vermin);
-                Dl_Handle_U htcl(dlopen(tcl_path.c_str(), RTLD_LAZY));
+                Dl_Handle_U htcl(Dl_open(tcl_path.c_str()));
                 if (htcl) {
-                    Dl_Handle_U htk(dlopen(tk_path.c_str(), RTLD_LAZY));
+                    Dl_Handle_U htk(Dl_open(tk_path.c_str()));
                     found = load_from_handles(std::move(htcl), std::move(htk));
                 }
                 debug("Tcl/Tk dynamic load: {} version {}.{}", found ? "success" : "failure", vermaj, vermin);
