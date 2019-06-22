@@ -6,7 +6,7 @@
 #pragma once
 #include <algorithm>
 #include <utility>
-#include <stddef.h>
+#include <cstddef>
 
 template <class T, size_t N> class bounded_vector {
     typedef T value_type;

@@ -2,6 +2,7 @@
 #include "attributes.h"
 #include <algorithm>
 #include <memory>
+#include <cstddef>
 
 template <class T> class dynarray : private std::unique_ptr<T[]> {
 public:
