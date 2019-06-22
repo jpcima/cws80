@@ -8,7 +8,11 @@
 #include <getopt.h>
 #include <boost/lexical_cast.hpp>
 #include <algorithm>
+#include <string>
+#include <deque>
 #include <memory>
+#include <thread>
+#include <mutex>
 #include <cmath>
 #include <cstdio>
 #include <io.h>
@@ -278,6 +282,25 @@ int cmd_shell(int argc, char *argv[])
 
     SetTimer(wnd, 0, 50, nullptr);
 
+    std::deque<std::string> cmdqueue;
+    std::mutex cmdexcl;
+
+    std::thread console_reader(
+        [&cmdqueue, &cmdexcl]() {
+            uint ch;
+            std::string cmd;
+            while ((ch = fgetc(stdin)) != EOF) {
+                if (ch != '\n')
+                    cmd.push_back(ch);
+                else {
+                    std::lock_guard<std::mutex> lock(cmdexcl);
+                    cmdqueue.push_back(cmd);
+                    cmd.clear();
+                }
+            }
+        });
+    console_reader.detach();
+
     MSG msg;
     for (bool is_open = true; is_open && GetMessage(&msg, nullptr, 0, 0);) {
         if (msg.message == WM_SYSCOMMAND && msg.hwnd == wnd && msg.wParam == SC_CLOSE) {
@@ -288,6 +311,14 @@ int cmd_shell(int argc, char *argv[])
         else {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
+        }
+
+        std::lock_guard<std::mutex> lock(cmdexcl);
+        while (!cmdqueue.empty()) {
+            std::string cmd = cmdqueue.front();
+            cmdqueue.pop_front();
+
+            /* TODO: shell command processing */
         }
     }
 
