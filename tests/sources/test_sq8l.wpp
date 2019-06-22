@@ -279,8 +279,11 @@ int cmd_shell(int argc, char *argv[])
     SetTimer(wnd, 0, 50, nullptr);
 
     MSG msg;
-    while (GetMessage(&msg, nullptr, 0, 0)) {
-        if (msg.message == WM_TIMER && msg.hwnd == wnd)
+    for (bool is_open = true; is_open && GetMessage(&msg, nullptr, 0, 0);) {
+        if (msg.message == WM_SYSCOMMAND && msg.hwnd == wnd && msg.wParam == SC_CLOSE) {
+            is_open = false;
+        }
+        else if (msg.message == WM_TIMER && msg.hwnd == wnd)
             host.idle_editor();
         else {
             TranslateMessage(&msg);
@@ -289,6 +292,7 @@ int cmd_shell(int argc, char *argv[])
     }
 
     host.close_editor();
+    DestroyWindow(wnd);
 
     #pragma message("TODO: the SQ8L shell")
 
