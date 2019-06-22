@@ -13,6 +13,7 @@
 #include <memory>
 #include <thread>
 #include <mutex>
+#include <sstream>
 #include <cmath>
 #include <cstdio>
 #include <io.h>
@@ -287,9 +288,8 @@ int cmd_shell(int argc, char *argv[])
 
     std::thread console_reader(
         [&cmdqueue, &cmdexcl]() {
-            uint ch;
             std::string cmd;
-            while ((ch = fgetc(stdin)) != EOF) {
+            for (uint ch; (ch = fgetc(stdin)) != EOF;) {
                 if (ch != '\n')
                     cmd.push_back(ch);
                 else {
@@ -300,6 +300,10 @@ int cmd_shell(int argc, char *argv[])
             }
         });
     console_reader.detach();
+
+    ///
+    dynarray<u8> last_pp_chunk;
+    ///
 
     MSG msg;
     for (bool is_open = true; is_open && GetMessage(&msg, nullptr, 0, 0);) {
@@ -319,6 +323,36 @@ int cmd_shell(int argc, char *argv[])
             cmdqueue.pop_front();
 
             /* TODO: shell command processing */
+            std::istringstream in(cmd);
+
+            std::string op;
+            in >> op;
+            if (op == "" || op == "help") {
+                printf("Command Help:\n"
+                       "  - <sp|select-program> <program-number>\n"
+                       "  - <pp|print-program>\n"
+                    );
+            }
+            else if (op == "sp" || op == "select-program") {
+                uint num = 0;
+                in >> num;
+                host.set_current_program(num);
+            }
+            else if (op == "pp" || op == "print-program") {
+                dynarray<u8> chunk = host.get_current_program_chunk();
+                for (size_t i = 0, n = chunk.size(); i < n; ++i) {
+                    if (!(i & 15)) printf("%s$%03X:", i ? "\n" : "", i);
+                    uint a = chunk[i];
+                    uint b = (i < last_pp_chunk.size()) ? last_pp_chunk[i] : 0;
+                    printf("\033[0;%dm", (a == b) ? 34 : 31);
+                    printf(" %02X", a);
+                    printf("\033[0;0m");
+                }
+                printf("\n");
+                last_pp_chunk = chunk;
+            }
+            else
+                printf("Unknown command \"%s\"\n", op.c_str());
         }
     }
 
