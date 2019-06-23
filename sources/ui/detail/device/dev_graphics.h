@@ -28,8 +28,7 @@ public:
     virtual GraphicsType type() const = 0;
 
     virtual void setup_context() {}
-    virtual void
-    initialize(gsl::span<const FontRequest> fontreqs, const nk_rune range[]) = 0;
+    virtual void initialize(gsl::span<const FontRequest> fontreqs) = 0;
     virtual void cleanup() = 0;
 
     im_texture load_texture(const im_image &img);
@@ -46,12 +45,14 @@ protected:
 
 //------------------------------------------------------------------------------
 struct FontRequest {
-    static FontRequest Default(f32 height);
-    static FontRequest File(f32 height, const char *path);
-    static FontRequest Memory(f32 height, const void *data, size_t size);
+    static FontRequest Default(f32 height, const nk_rune *range);
+    static FontRequest File(f32 height, const char *path, const nk_rune *range);
+    static FontRequest Memory(f32 height, const void *data, size_t size, const nk_rune *range);
 
     enum class Type { Default, File, Memory } type;
     f32 height;
+    const nk_rune *range;
+
     union {
         struct {
             const char *path;
@@ -63,28 +64,31 @@ struct FontRequest {
     } un;
 };
 
-inline auto FontRequest::Default(f32 height) -> FontRequest
+inline auto FontRequest::Default(f32 height, const nk_rune *range) -> FontRequest
 {
     FontRequest req;
     req.type = FontRequest::Type::Default;
     req.height = height;
+    req.range = range;
     return req;
 }
 
-inline auto FontRequest::File(f32 height, const char *path) -> FontRequest
+inline auto FontRequest::File(f32 height, const char *path, const nk_rune *range) -> FontRequest
 {
     FontRequest req;
     req.type = FontRequest::Type::File;
     req.height = height;
+    req.range = range;
     req.un.file.path = path;
     return req;
 }
 
-inline auto FontRequest::Memory(f32 height, const void *data, size_t size) -> FontRequest
+inline auto FontRequest::Memory(f32 height, const void *data, size_t size, const nk_rune *range) -> FontRequest
 {
     FontRequest req;
     req.type = FontRequest::Type::Memory;
     req.height = height;
+    req.range = range;
     req.un.memory.data = data;
     req.un.memory.size = size;
     return req;

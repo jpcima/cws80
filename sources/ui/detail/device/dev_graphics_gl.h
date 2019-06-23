@@ -16,7 +16,7 @@ public:
     inline GraphicsType type() const override { return GraphicsType::OpenGL; }
 
     void setup_context() override;
-    void initialize(gsl::span<const FontRequest> fontreqs, const nk_rune range[]) override;
+    void initialize(gsl::span<const FontRequest> fontreqs) override;
     void cleanup() override;
 
     im_texture load_texture(const u8 *data, uint w, uint h, uint channels) override;

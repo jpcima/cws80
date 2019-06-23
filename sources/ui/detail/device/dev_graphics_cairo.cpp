@@ -28,7 +28,7 @@ struct GraphicsDevice_Cairo::Impl {
     uint atlas_height_ = 0;
     nk_draw_null_texture null_{};
 
-    void load_fonts(gsl::span<const FontRequest> fontreqs, const nk_rune range[]);
+    void load_fonts(gsl::span<const FontRequest> fontreqs);
 };
 
 GraphicsDevice_Cairo::GraphicsDevice_Cairo(UIController &ctl)
@@ -47,9 +47,9 @@ void GraphicsDevice_Cairo::setup_context()
 {
 }
 
-void GraphicsDevice_Cairo::initialize(gsl::span<const FontRequest> fontreqs, const nk_rune range[])
+void GraphicsDevice_Cairo::initialize(gsl::span<const FontRequest> fontreqs)
 {
-    P->load_fonts(fontreqs, range);
+    P->load_fonts(fontreqs);
 }
 
 void GraphicsDevice_Cairo::cleanup()
@@ -394,7 +394,7 @@ nk_user_font *GraphicsDevice_Cairo::get_font(uint id)
     return &fonts[id]->handle;
 }
 
-void GraphicsDevice_Cairo::Impl::load_fonts(gsl::span<const FontRequest> fontreqs, const nk_rune range[])
+void GraphicsDevice_Cairo::Impl::load_fonts(gsl::span<const FontRequest> fontreqs)
 {
     bool success = false;
     nk_font_atlas &atlas = *(atlas_ = nk_font_atlas{});
@@ -415,7 +415,7 @@ void GraphicsDevice_Cairo::Impl::load_fonts(gsl::span<const FontRequest> fontreq
 
     for (const FontRequest &req : fontreqs) {
         struct nk_font_config fcfg = nk_font_config(req.height);
-        fcfg.range = range;
+        fcfg.range = req.range;
         fcfg.oversample_h = 2;
         fcfg.oversample_v = 2;
 

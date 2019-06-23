@@ -288,11 +288,32 @@ void UIView::Impl::initialize_resources()
 
 gsl::span<const FontRequest> UIView::Impl::font_requests()
 {
+    static const nk_rune basic_range[] = {
+        0x0020, 0x007f,  // Basic Latin
+        0
+    };
+
+    static const nk_rune segment_range[] = {
+        0x0020, 0x007f,  // Basic Latin
+        0x009f, 0x009f,  // Special character: all segments on
+        0
+    };
+
+#if 0
+    static const nk_rune latin_range[] = {
+        0x0020, 0x007f,  // Basic Latin
+        0x0080, 0x00ff,  // Latin-1 Supplement
+        0x0100, 0x017f,  // Latin Extended-A
+        0x0180, 0x024f,  // Latin Extended-B
+        0x0300, 0x036f,  // Combining Diacritical Marks
+        0
+    };
+#endif
+
     static const FontRequest fontreqs[] = {
-        FontRequest::Memory(13, ui::fnt_proggy_clean, sizeof(ui::fnt_proggy_clean)),
-        FontRequest::Memory(20, ui::fnt_seg14_data, sizeof(ui::fnt_seg14_data)),
-        FontRequest::Memory(21, ui::fnt_scp_black_italic_data,
-                            sizeof(ui::fnt_scp_black_italic_data)),
+        FontRequest::Memory(13, ui::fnt_proggy_clean, sizeof(ui::fnt_proggy_clean), basic_range),
+        FontRequest::Memory(20, ui::fnt_seg14_data, sizeof(ui::fnt_seg14_data), segment_range),
+        FontRequest::Memory(21, ui::fnt_scp_black_italic_data, sizeof(ui::fnt_scp_black_italic_data), basic_range),
     };
     return gsl::make_span(fontreqs);
 }

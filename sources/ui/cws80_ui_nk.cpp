@@ -69,16 +69,7 @@ void NkScreen::init(GraphicsDevice &gdev, uint w, uint h, gsl::span<const FontRe
     P->first_time_ = true;
 #endif
 
-    static const nk_rune range[] = {
-        0x0020, 0x007f,  // Basic Latin
-        0x0080, 0x00ff,  // Latin-1 Supplement
-        0x0100, 0x017f,  // Latin Extended-A
-        0x0180, 0x024f,  // Latin Extended-B
-        0x0300, 0x036f,  // Combining Diacritical Marks
-        0,
-    };
-
-    gdev.initialize(fontreqs, range);
+    gdev.initialize(fontreqs);
     SCOPE(exit)
     {
         if (!success)

@@ -93,7 +93,7 @@ struct GraphicsDevice_GL::Impl {
     void render_gl2();
     void render_gl3();
 
-    void load_fonts(gsl::span<const FontRequest> fontreqs, const nk_rune range[]);
+    void load_fonts(gsl::span<const FontRequest> fontreqs);
 };
 
 GraphicsDevice_GL::GraphicsDevice_GL(UIController &ctl)
@@ -160,8 +160,7 @@ static void GLAPIENTRY gl_debug_callback(GLenum source, GLenum type, GLuint id,
 }
 #endif
 
-void GraphicsDevice_GL::initialize(gsl::span<const FontRequest> fontreqs,
-                                   const nk_rune range[])
+void GraphicsDevice_GL::initialize(gsl::span<const FontRequest> fontreqs)
 {
     setup_context();
 
@@ -180,7 +179,7 @@ void GraphicsDevice_GL::initialize(gsl::span<const FontRequest> fontreqs,
     else
         P->initialize_gl3();
 
-    P->load_fonts(fontreqs, range);
+    P->load_fonts(fontreqs);
 }
 
 #ifndef NDEBUG
@@ -637,8 +636,7 @@ nk_user_font *GraphicsDevice_GL::get_font(uint id)
     return &fonts[id]->handle;
 }
 
-void GraphicsDevice_GL::Impl::load_fonts(gsl::span<const FontRequest> fontreqs,
-                                         const nk_rune range[])
+void GraphicsDevice_GL::Impl::load_fonts(gsl::span<const FontRequest> fontreqs)
 {
     bool success = false;
     nk_font_atlas &atlas = *(atlas_ = nk_font_atlas{});
@@ -658,7 +656,7 @@ void GraphicsDevice_GL::Impl::load_fonts(gsl::span<const FontRequest> fontreqs,
 
     for (const FontRequest &req : fontreqs) {
         struct nk_font_config fcfg = nk_font_config(req.height);
-        fcfg.range = range;
+        fcfg.range = req.range;
         fcfg.oversample_h = 8;
         fcfg.oversample_v = 8;
 
