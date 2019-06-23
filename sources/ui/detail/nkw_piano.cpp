@@ -115,15 +115,15 @@ static bool im_do_slider(nk_context *ctx, im_piano_data &data, nk_input *in,
         }
 
         if (keydown != data.clickedkey) {
-            if (data.clickedkey) {
-                // debug("Release {}", *data.clickedkey);
+            if (data.clickedkey != ~0u) {
+                // debug("Release {}", data.clickedkey);
                 data.keyevents[data.clickedkey] = -128;
                 data.keystates[data.clickedkey] = 0;
                 event = true;
             }
             data.clickedkey = keydown;
-            if (keydown) {
-                // debug("Press {}", *keydown);
+            if (keydown != ~0u) {
+                // debug("Press {}", keydown);
                 data.keyevents[keydown] = +127;
                 data.keystates[keydown] = 127;
                 event = true;
