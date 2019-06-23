@@ -19,7 +19,7 @@ cws80_tool_OBJS = \
 	build/cws/cws80_data.cpp.o \
 	build/cws/cws80_program.cpp.o \
 	build/cws/cws80_program_realfmt.cpp.o \
-	build/cws/cws80_program_sq8lfmt.cpp \
+	build/cws/cws80_program_sq8lfmt.cpp.o \
 	build/cws/cws80_program_textfmt.cpp.o
 
 bin/cws80_tool: $(cws80_tool_OBJS)
