@@ -13,6 +13,7 @@ public:
     Osc();
     void initialize(f64 fs, uint bs);
     void setparam(const Param *p);
+    void setphase0(u32 phase0);
     void reset();
     void generate(i16 *outp, const i8 *syncinp, i8 *syncoutp,
                   const i8 *modps[2], const i8 modamts[2], uint key, uint n);
@@ -25,6 +26,8 @@ private:
     u32 phase_ = 0;
     // phase increments normalized to fs
     u32 *osc_phi_ = nullptr;
+    // initial phase
+    u32 phase0_ = 0;
 };
 
 }  // namespace cws80

@@ -1,5 +1,6 @@
 #include "cws/component/osc.h"
 #include "utility/arithmetic.h"
+#include "utility/debug.h"
 #include <map>
 #include <memory>
 #include <mutex>
@@ -37,6 +38,13 @@ void Osc::initialize(f64 fs, uint bs)
     osc_phi_ = constant->osc_phi;
 }
 
+void Osc::setphase0(u32 phase0)
+{
+    u32 diff = phase0 - phase0_;
+    phase0_ = phase0;
+    phase_ += diff;
+}
+
 void Osc::setparam(const Param *p)
 {
     param_ = p;
@@ -44,7 +52,7 @@ void Osc::setparam(const Param *p)
 
 void Osc::reset()
 {
-    phase_ = 0;
+    phase_ = phase0_;
 }
 
 void Osc::generate(i16 *outp, const i8 *syncinp, i8 *syncoutp,

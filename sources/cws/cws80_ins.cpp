@@ -41,6 +41,8 @@ void Voice::initialize(f64 fs, uint bs, pb_alloc<> &alloc)
     for (uint i = 0; i < 3; ++i) {
         Osc &osc = osc_[i];
         osc.initialize(fs, bs);
+        const u32 phase0[] = {0x00000000u, 0xAAAAAAAAu, 0x55555555u};
+        osc.setphase0(phase0[i]);
         osc.setparam(&pgm_.oscs[i]);
         Dca &dca = dca_[i];
         dca.initialize(fs, bs);
