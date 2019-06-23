@@ -10,6 +10,10 @@
 #include <cstdlib>
 #endif
 
+#ifndef _WIN32
+#include <unistd.h>
+#endif
+
 #define DEBUG_INCLUDE_SOURCE_LOCATION 1
 #define DEBUG_INCLUDE_THREAD_ID 1
 #define DEBUG_SOURCE_LOCATION_FORMAT "{:>30}:{:<5}  "
