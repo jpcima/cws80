@@ -60,6 +60,7 @@ FILES_UI = \
 	sources/cws/cws80_data_banks.cpp \
 	sources/cws/cws80_program.cpp \
 	sources/cws/cws80_program_realfmt.cpp \
+	sources/cws/cws80_program_sq8lfmt.cpp \
 	sources/cws/cws80_program_textfmt.cpp \
 	sources/cws/component/dca4.cpp \
 	sources/cws/component/dca.cpp \

@@ -84,6 +84,10 @@ struct Program {
     bool rename(cxx::string_view name);
     static Program load(const u8 *data, size_t length);
 
+    // SQ8L export
+    static constexpr uint SQ8L_patch_size = 0x23b;
+    void save_SQ8L(u8 *data);
+
     std::string to_string() const;
     static Program from_string(const std::string &string);
 
