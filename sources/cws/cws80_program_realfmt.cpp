@@ -112,117 +112,116 @@ bool Program::apply_nrpn(int nrpn, int val7)
     uint idx7 = ~0u;
 
     switch (nrpn) {
-#define ENV(I)                 \
-    case 0 + 10 * I:           \
-        idx7 = P_Env##I##_L1;  \
-        break;                 \
-    case 1 + 10 * I:           \
-        idx7 = P_Env##I##_L2;  \
-        break;                 \
-    case 2 + 10 * I:           \
-        idx7 = P_Env##I##_L3;  \
-        break;                 \
-    case 3 + 10 * I:           \
-        idx7 = P_Env##I##_T1;  \
-        break;                 \
-    case 4 + 10 * I:           \
-        idx7 = P_Env##I##_T2;  \
-        break;                 \
-    case 5 + 10 * I:           \
-        idx7 = P_Env##I##_T3;  \
-        break;                 \
-    case 6 + 10 * I:           \
-        idx7 = P_Env##I##_T4;  \
-        break;                 \
-    case 7 + 10 * I:           \
-        idx7 = P_Env##I##_LV;  \
-        break;                 \
-    case 8 + 10 * I:           \
-        idx7 = P_Env##I##_T1V; \
-        break;                 \
-    case 9 + 10 * I:           \
-        idx7 = P_Env##I##_TK;  \
+#define ENV(I)                              \
+    case 0 + 10 * (I - 1):                  \
+        idx7 = P_Env##I##_L1;               \
+        break;                              \
+    case 1 + 10 * (I - 1):                  \
+        idx7 = P_Env##I##_L2;               \
+        break;                              \
+    case 2 + 10 * (I - 1):                  \
+        idx7 = P_Env##I##_L3;               \
+        break;                              \
+    case 3 + 10 * (I - 1):                  \
+        idx7 = P_Env##I##_T1;               \
+        break;                              \
+    case 4 + 10 * (I - 1):                  \
+        idx7 = P_Env##I##_T2;               \
+        break;                              \
+    case 5 + 10 * (I - 1):                  \
+        idx7 = P_Env##I##_T3;               \
+        break;                              \
+    case 6 + 10 * (I - 1):                  \
+        idx7 = P_Env##I##_T4;               \
+        break;                              \
+    case 7 + 10 * (I - 1):                  \
+        idx7 = P_Env##I##_LV;               \
+        break;                              \
+    case 8 + 10 * (I - 1):                  \
+        idx7 = P_Env##I##_T1V;              \
+        break;                              \
+    case 9 + 10 * (I - 1):                  \
+        idx7 = P_Env##I##_TK;               \
         break;
-#define LFO(I)                   \
-    case 40 + 8 * I:             \
-        idx7 = P_Lfo##I##_FREQ;  \
-        break;                   \
-    case 41 + 8 * I:             \
-        idx7 = P_Lfo##I##_RESET; \
-        break;                   \
-    case 42 + 8 * I:             \
-        idx7 = P_Lfo##I##_HUMAN; \
-        break;                   \
-    case 43 + 8 * I:             \
-        idx7 = P_Lfo##I##_WAV;   \
-        break;                   \
-    case 44 + 8 * I:             \
-        idx7 = P_Lfo##I##_L1;    \
-        break;                   \
-    case 45 + 8 * I:             \
-        idx7 = P_Lfo##I##_DELAY; \
-        break;                   \
-    case 46 + 8 * I:             \
-        idx7 = P_Lfo##I##_L2;    \
-        break;                   \
-    case 47 + 8 * I:             \
-        idx7 = P_Lfo##I##_MOD;   \
+#define LFO(I)                              \
+    case 40 + 8 * (I - 1):                  \
+        idx7 = P_Lfo##I##_FREQ;             \
+        break;                              \
+    case 41 + 8 * (I - 1):                  \
+        idx7 = P_Lfo##I##_RESET;            \
+        break;                              \
+    case 42 + 8 * (I - 1):                  \
+        idx7 = P_Lfo##I##_HUMAN;            \
+        break;                              \
+    case 43 + 8 * (I - 1):                  \
+        idx7 = P_Lfo##I##_WAV;              \
+        break;                              \
+    case 44 + 8 * (I - 1):                  \
+        idx7 = P_Lfo##I##_L1;               \
+        break;                              \
+    case 45 + 8 * (I - 1):                  \
+        idx7 = P_Lfo##I##_DELAY;            \
+        break;                              \
+    case 46 + 8 * (I - 1):                  \
+        idx7 = P_Lfo##I##_L2;               \
+        break;                              \
+    case 47 + 8 * (I - 1):                  \
+        idx7 = P_Lfo##I##_MOD;              \
         break;
-#define OSC(I)                       \
-    case 64 + 8 * I:                 \
-        idx7 = P_Osc##I##_OCT;       \
-        break;                       \
-    case 65 + 8 * I:                 \
-        idx7 = P_Osc##I##_SEMI;      \
-        break;                       \
-    case 66 + 8 * I:                 \
-        idx7 = P_Osc##I##_FINE;      \
-        break;                       \
-    case 67 + 8 * I:                 \
-        idx7 = P_Osc##I##_WAVEFORM;  \
-        break;                       \
-    case 68 + 8 * I:                 \
-        idx7 = P_Osc##I##_FMSRC1;    \
-        break;                       \
-    case 69 + 8 * I:                 \
-        idx7 = P_Osc##I##_FCMODAMT1; \
-        break;                       \
-    case 70 + 8 * I:                 \
-        idx7 = P_Osc##I##_FMSRC2;    \
-        break;                       \
-    case 71 + 8 * I:                 \
-        idx7 = P_Osc##I##_FCMODAMT2; \
-        break;                       \
-                                     \
-    case 88 + 6 * I:                 \
-        idx7 = P_Osc##I##_DCALEVEL;  \
-        break;                       \
-    case 89 + 6 * I:                 \
-        idx7 = P_Osc##I##_DCAENABLE; \
-        break;                       \
-    case 90 + 6 * I:                 \
-        idx7 = P_Osc##I##_AMSRC1;    \
-        break;                       \
-    case 91 + 6 * I:                 \
-        idx7 = P_Osc##I##_AMAMT1;    \
-        break;                       \
-    case 92 + 6 * I:                 \
-        idx7 = P_Osc##I##_AMSRC2;    \
-        break;                       \
-    case 93 + 6 * I:                 \
-        idx7 = P_Osc##I##_AMAMT2;    \
+#define OSC(I)                              \
+    case 64 + 8 * (I - 1):                  \
+        idx7 = P_Osc##I##_OCT;              \
+        break;                              \
+    case 65 + 8 * (I - 1):                  \
+        idx7 = P_Osc##I##_SEMI;             \
+        break;                              \
+    case 66 + 8 * (I - 1):                  \
+        idx7 = P_Osc##I##_FINE;             \
+        break;                              \
+    case 67 + 8 * (I - 1):                  \
+        idx7 = P_Osc##I##_WAVEFORM;         \
+        break;                              \
+    case 68 + 8 * (I - 1):                  \
+        idx7 = P_Osc##I##_FMSRC1;           \
+        break;                              \
+    case 69 + 8 * (I - 1):                  \
+        idx7 = P_Osc##I##_FCMODAMT1;        \
+        break;                              \
+    case 70 + 8 * (I - 1):                  \
+        idx7 = P_Osc##I##_FMSRC2;           \
+        break;                              \
+    case 71 + 8 * (I - 1):                  \
+        idx7 = P_Osc##I##_FCMODAMT2;        \
+        break;                              \
+    case 88 + 6 * (I - 1):                  \
+        idx7 = P_Osc##I##_DCALEVEL;         \
+        break;                              \
+    case 89 + 6 * (I - 1):                  \
+        idx7 = P_Osc##I##_DCAENABLE;        \
+        break;                              \
+    case 90 + 6 * (I - 1):                  \
+        idx7 = P_Osc##I##_AMSRC1;           \
+        break;                              \
+    case 91 + 6 * (I - 1):                  \
+        idx7 = P_Osc##I##_AMAMT1;           \
+        break;                              \
+    case 92 + 6 * (I - 1):                  \
+        idx7 = P_Osc##I##_AMSRC2;           \
+        break;                              \
+    case 93 + 6 * (I - 1):                  \
+        idx7 = P_Osc##I##_AMAMT2;           \
         break;
 
-        ENV(0);
         ENV(1);
         ENV(2);
         ENV(3);
-        LFO(0);
+        ENV(4);
         LFO(1);
         LFO(2);
-        OSC(0);
+        LFO(3);
         OSC(1);
         OSC(2);
+        OSC(3);
 
 #undef ENV
 #undef LFO

@@ -423,7 +423,7 @@ void UIView::Impl::create_page_osc(uint nth, im_rectf bounds)
     nk_context *ctx = screen.context();
     const Program &pgm = ctl.program();
 
-    const uint pdelta = nth * (P_Osc1_SEMI - P_Osc0_SEMI);
+    const uint pdelta = nth * (P_Osc2_SEMI - P_Osc1_SEMI);
 
     {
         im_rectf side = bounds.take_from_right(120);
@@ -453,23 +453,23 @@ void UIView::Impl::create_page_osc(uint nth, im_rectf bounds)
                 sprintf(namebuf, "HIDDEN %u", i);
             wavenames[i] = namebuf;
         }
-        this->selector_for_parameter(P_Osc0_WAVEFORM + pdelta, wavenames, "WAVE");
+        this->selector_for_parameter(P_Osc1_WAVEFORM + pdelta, wavenames, "WAVE");
 
         im_layout_fixed_set(ctx, row1.take_from_left(150).from_top(40).reduced({8, 0}));
-        this->selector_for_modulator(P_Osc0_FMSRC1 + pdelta, "MOD 1");
+        this->selector_for_modulator(P_Osc1_FMSRC1 + pdelta, "MOD 1");
         im_layout_fixed_set(ctx, row1.take_from_left(150).from_top(40).reduced({8, 0}));
-        this->selector_for_modulator(P_Osc0_FMSRC2 + pdelta, "MOD 2");
+        this->selector_for_modulator(P_Osc1_FMSRC2 + pdelta, "MOD 2");
 
         im_layout_fixed_set(ctx, row2.take_from_left(70).from_vcenter(60));
-        this->slider_for_parameter(P_Osc0_OCT + pdelta, sk_knob_, "OCT");
+        this->slider_for_parameter(P_Osc1_OCT + pdelta, sk_knob_, "OCT");
         im_layout_fixed_set(ctx, row2.take_from_left(70).from_vcenter(60));
-        this->slider_for_parameter(P_Osc0_SEMI + pdelta, sk_knob_, "SEMI");
+        this->slider_for_parameter(P_Osc1_SEMI + pdelta, sk_knob_, "SEMI");
         im_layout_fixed_set(ctx, row2.take_from_left(70).from_vcenter(60));
-        this->slider_for_parameter(P_Osc0_FINE + pdelta, sk_knob_, "FINE");
+        this->slider_for_parameter(P_Osc1_FINE + pdelta, sk_knob_, "FINE");
         im_layout_fixed_set(ctx, row2.take_from_left(70).from_vcenter(60));
-        this->slider_for_parameter(P_Osc0_FCMODAMT1 + pdelta, sk_knob_, "DEPTH 1");
+        this->slider_for_parameter(P_Osc1_FCMODAMT1 + pdelta, sk_knob_, "DEPTH 1");
         im_layout_fixed_set(ctx, row2.take_from_left(70).from_vcenter(60));
-        this->slider_for_parameter(P_Osc0_FCMODAMT2 + pdelta, sk_knob_, "DEPTH 2");
+        this->slider_for_parameter(P_Osc1_FCMODAMT2 + pdelta, sk_knob_, "DEPTH 2");
         im_layout_fixed_set(ctx, row2.take_from_left(70).from_vcenter(60));
         this->button_for_parameter(P_Misc_SYNC, tex_tiny_button_, sk_led_, "SYNC 1>2");
         im_layout_fixed_set(ctx, row2.take_from_left(70).from_vcenter(60));
@@ -486,7 +486,7 @@ void UIView::Impl::create_page_dca(uint nth, im_rectf bounds)
     nk_context *ctx = screen.context();
     const Program &pgm = ctl.program();
 
-    const uint pdelta = nth * (P_Osc1_SEMI - P_Osc0_SEMI);
+    const uint pdelta = nth * (P_Osc2_SEMI - P_Osc1_SEMI);
 
     {
         im_rectf side = bounds.take_from_right(120);
@@ -508,19 +508,19 @@ void UIView::Impl::create_page_dca(uint nth, im_rectf bounds)
         row1.chop_from_left(80);
 
         im_layout_fixed_set(ctx, row1.take_from_left(150).from_top(40).reduced({8, 0}));
-        this->selector_for_modulator(P_Osc0_AMSRC1 + pdelta, "MOD 1");
+        this->selector_for_modulator(P_Osc1_AMSRC1 + pdelta, "MOD 1");
         im_layout_fixed_set(ctx, row1.take_from_left(150).from_top(40).reduced({8, 0}));
-        this->selector_for_modulator(P_Osc0_AMSRC2 + pdelta, "MOD 2");
+        this->selector_for_modulator(P_Osc1_AMSRC2 + pdelta, "MOD 2");
 
         im_layout_fixed_set(ctx, row2.take_from_left(70).from_vcenter(60));
-        this->button_for_parameter(P_Osc0_DCAENABLE + pdelta, tex_tiny_button_,
+        this->button_for_parameter(P_Osc1_DCAENABLE + pdelta, tex_tiny_button_,
                                    sk_led_, "ENABLE");
         im_layout_fixed_set(ctx, row2.take_from_left(70).from_vcenter(60));
-        this->slider_for_parameter(P_Osc0_DCALEVEL + pdelta, sk_knob_, "LEVEL");
+        this->slider_for_parameter(P_Osc1_DCALEVEL + pdelta, sk_knob_, "LEVEL");
         im_layout_fixed_set(ctx, row2.take_from_left(70).from_vcenter(60));
-        this->slider_for_parameter(P_Osc0_AMAMT1 + pdelta, sk_knob_, "DEPTH 1");
+        this->slider_for_parameter(P_Osc1_AMAMT1 + pdelta, sk_knob_, "DEPTH 1");
         im_layout_fixed_set(ctx, row2.take_from_left(70).from_vcenter(60));
-        this->slider_for_parameter(P_Osc0_AMAMT2 + pdelta, sk_knob_, "DEPTH 2");
+        this->slider_for_parameter(P_Osc1_AMAMT2 + pdelta, sk_knob_, "DEPTH 2");
         im_layout_fixed_set(ctx, row2.take_from_left(70).from_vcenter(60));
         this->button_for_parameter(P_Misc_AM, tex_tiny_button_, sk_led_, "AM 1>2");
     }
@@ -562,7 +562,7 @@ void UIView::Impl::create_page_env(uint nth, im_rectf bounds)
     nk_context *ctx = screen.context();
     const Program &pgm = ctl.program();
 
-    const uint pdelta = nth * (P_Env1_L1 - P_Env0_L1);
+    const uint pdelta = nth * (P_Env2_L1 - P_Env1_L1);
 
     im_rectf side = bounds.take_from_right(250);
     // std::vector<im_rectf> drawbox = vsubdiv(side, 4, 4);
@@ -592,26 +592,26 @@ void UIView::Impl::create_page_env(uint nth, im_rectf bounds)
         f32 elw = 60;
 
         im_layout_fixed_set(ctx, row1.take_from_left(elw).from_vcenter(60));
-        this->slider_for_parameter(P_Env0_L1 + pdelta, sk_knob_, "L1");
+        this->slider_for_parameter(P_Env1_L1 + pdelta, sk_knob_, "L1");
         im_layout_fixed_set(ctx, row1.take_from_left(elw).from_vcenter(60));
-        this->slider_for_parameter(P_Env0_L2 + pdelta, sk_knob_, "L2");
+        this->slider_for_parameter(P_Env1_L2 + pdelta, sk_knob_, "L2");
         im_layout_fixed_set(ctx, row1.take_from_left(elw).from_vcenter(60));
-        this->slider_for_parameter(P_Env0_L3 + pdelta, sk_knob_, "L3");
+        this->slider_for_parameter(P_Env1_L3 + pdelta, sk_knob_, "L3");
         im_layout_fixed_set(ctx, row1.take_from_left(elw).from_vcenter(60));
-        this->slider_for_parameter(P_Env0_LV + pdelta, sk_knob_, "LV");
+        this->slider_for_parameter(P_Env1_LV + pdelta, sk_knob_, "LV");
         im_layout_fixed_set(ctx, row1.take_from_left(elw).from_vcenter(60));
-        this->slider_for_parameter(P_Env0_T1V + pdelta, sk_knob_, "T1V");
+        this->slider_for_parameter(P_Env1_T1V + pdelta, sk_knob_, "T1V");
 
         im_layout_fixed_set(ctx, row2.take_from_left(elw).from_vcenter(60));
-        this->slider_for_parameter(P_Env0_T1 + pdelta, sk_knob_, "T1");
+        this->slider_for_parameter(P_Env1_T1 + pdelta, sk_knob_, "T1");
         im_layout_fixed_set(ctx, row2.take_from_left(elw).from_vcenter(60));
-        this->slider_for_parameter(P_Env0_T2 + pdelta, sk_knob_, "T2");
+        this->slider_for_parameter(P_Env1_T2 + pdelta, sk_knob_, "T2");
         im_layout_fixed_set(ctx, row2.take_from_left(elw).from_vcenter(60));
-        this->slider_for_parameter(P_Env0_T3 + pdelta, sk_knob_, "T3");
+        this->slider_for_parameter(P_Env1_T3 + pdelta, sk_knob_, "T3");
         im_layout_fixed_set(ctx, row2.take_from_left(elw).from_vcenter(60));
-        this->slider_for_parameter(P_Env0_T4 + pdelta, sk_knob_, "T4");
+        this->slider_for_parameter(P_Env1_T4 + pdelta, sk_knob_, "T4");
         im_layout_fixed_set(ctx, row2.take_from_left(elw).from_vcenter(60));
-        this->slider_for_parameter(P_Env0_TK + pdelta, sk_knob_, "TK");
+        this->slider_for_parameter(P_Env1_TK + pdelta, sk_knob_, "TK");
         im_layout_fixed_set(ctx, row2.take_from_left(elw).from_vcenter(60));
         this->button_for_parameter(P_Misc_ENV, tex_tiny_button_, sk_led_, "ENV");
         im_layout_fixed_set(ctx, row2.take_from_left(elw).from_vcenter(60));
@@ -625,7 +625,7 @@ void UIView::Impl::create_page_lfo(uint nth, im_rectf bounds)
     NkScreen &screen = ctl.screen();
     nk_context *ctx = screen.context();
 
-    const uint pdelta = nth * (P_Lfo1_L1 - P_Lfo0_L1);
+    const uint pdelta = nth * (P_Lfo2_L1 - P_Lfo1_L1);
 
     {
         im_rectf row1 = bounds.from_top(bounds.h / 2);
@@ -633,22 +633,22 @@ void UIView::Impl::create_page_lfo(uint nth, im_rectf bounds)
         row1.chop_from_left(80);
 
         im_layout_fixed_set(ctx, row1.take_from_left(150).from_top(40).reduced({8, 0}));
-        this->selector_for_modulator(P_Lfo0_MOD + pdelta, "MOD");
+        this->selector_for_modulator(P_Lfo1_MOD + pdelta, "MOD");
         im_layout_fixed_set(ctx, row1.take_from_left(150).from_top(40).reduced({8, 0}));
-        this->selector_for_lfowave(P_Lfo0_WAV + pdelta, "WAVE");
+        this->selector_for_lfowave(P_Lfo1_WAV + pdelta, "WAVE");
 
         im_layout_fixed_set(ctx, row2.take_from_left(70).from_vcenter(60));
-        this->slider_for_parameter(P_Lfo0_FREQ + pdelta, sk_knob_, "FREQ");
+        this->slider_for_parameter(P_Lfo1_FREQ + pdelta, sk_knob_, "FREQ");
         im_layout_fixed_set(ctx, row2.take_from_left(70).from_vcenter(60));
-        this->slider_for_parameter(P_Lfo0_L1 + pdelta, sk_knob_, "L1");
+        this->slider_for_parameter(P_Lfo1_L1 + pdelta, sk_knob_, "L1");
         im_layout_fixed_set(ctx, row2.take_from_left(70).from_vcenter(60));
-        this->slider_for_parameter(P_Lfo0_L2 + pdelta, sk_knob_, "L2");
+        this->slider_for_parameter(P_Lfo1_L2 + pdelta, sk_knob_, "L2");
         im_layout_fixed_set(ctx, row2.take_from_left(70).from_vcenter(60));
-        this->slider_for_parameter(P_Lfo0_DELAY + pdelta, sk_knob_, "DELAY");
+        this->slider_for_parameter(P_Lfo1_DELAY + pdelta, sk_knob_, "DELAY");
         im_layout_fixed_set(ctx, row2.take_from_left(70).from_vcenter(60));
-        this->button_for_parameter(P_Lfo0_RESET + pdelta, tex_tiny_button_, sk_led_, "RESET");
+        this->button_for_parameter(P_Lfo1_RESET + pdelta, tex_tiny_button_, sk_led_, "RESET");
         im_layout_fixed_set(ctx, row2.take_from_left(70).from_vcenter(60));
-        this->button_for_parameter(P_Lfo0_HUMAN + pdelta, tex_tiny_button_, sk_led_, "HUMAN");
+        this->button_for_parameter(P_Lfo1_HUMAN + pdelta, tex_tiny_button_, sk_led_, "HUMAN");
     }
 }
 

@@ -65,49 +65,49 @@ void Program::save_SQ8L(u8 *data) const
 
     for (uint osc = 0; osc < 3; ++osc) {
         uint d_off = osc * 24;
-        uint p_off = osc * (P_Osc1_OCT - P_Osc0_OCT);
-        data[0x41 + d_off] = get_parameter(p_off + P_Osc0_OCT);
-        data[0x42 + d_off] = get_parameter(p_off + P_Osc0_SEMI);
-        data[0x43 + d_off] = get_parameter(p_off + P_Osc0_FINE);
-        data[0x44 + d_off] = get_parameter(p_off + P_Osc0_WAVEFORM);
-        write_mod(data, 0x46 + d_off, get_parameter(p_off + P_Osc0_FMSRC1));
-        data[0x48 + d_off] = get_parameter(p_off + P_Osc0_FCMODAMT1);
-        write_mod(data, 0x49 + d_off, get_parameter(p_off + P_Osc0_FMSRC2));
-        data[0x4B + d_off] = get_parameter(p_off + P_Osc0_FCMODAMT2);
-        data[0x4F + d_off] = get_parameter(p_off + P_Osc0_DCALEVEL);
-        data[0x50 + d_off] = get_parameter(p_off + P_Osc0_DCAENABLE);
-        write_mod(data, 0x51 + d_off, get_parameter(p_off + P_Osc0_AMSRC1));
-        data[0x53 + d_off] = get_parameter(p_off + P_Osc0_AMAMT1);
-        write_mod(data, 0x54 + d_off, get_parameter(p_off + P_Osc0_AMSRC2));
-        data[0x56 + d_off] = get_parameter(p_off + P_Osc0_AMAMT2);
+        uint p_off = osc * (P_Osc2_OCT - P_Osc1_OCT);
+        data[0x41 + d_off] = get_parameter(p_off + P_Osc1_OCT);
+        data[0x42 + d_off] = get_parameter(p_off + P_Osc1_SEMI);
+        data[0x43 + d_off] = get_parameter(p_off + P_Osc1_FINE);
+        data[0x44 + d_off] = get_parameter(p_off + P_Osc1_WAVEFORM);
+        write_mod(data, 0x46 + d_off, get_parameter(p_off + P_Osc1_FMSRC1));
+        data[0x48 + d_off] = get_parameter(p_off + P_Osc1_FCMODAMT1);
+        write_mod(data, 0x49 + d_off, get_parameter(p_off + P_Osc1_FMSRC2));
+        data[0x4B + d_off] = get_parameter(p_off + P_Osc1_FCMODAMT2);
+        data[0x4F + d_off] = get_parameter(p_off + P_Osc1_DCALEVEL);
+        data[0x50 + d_off] = get_parameter(p_off + P_Osc1_DCAENABLE);
+        write_mod(data, 0x51 + d_off, get_parameter(p_off + P_Osc1_AMSRC1));
+        data[0x53 + d_off] = get_parameter(p_off + P_Osc1_AMAMT1);
+        write_mod(data, 0x54 + d_off, get_parameter(p_off + P_Osc1_AMSRC2));
+        data[0x56 + d_off] = get_parameter(p_off + P_Osc1_AMAMT2);
     }
 
     for (uint env = 0; env < 4; ++env) {
         uint d_off = env * 14;
-        uint p_off = env * (P_Env1_LE - P_Env0_LE);
-        data[0x8A + d_off] = get_parameter(p_off + P_Env0_L1);
-        data[0x8B + d_off] = get_parameter(p_off + P_Env0_L2);
-        data[0x8C + d_off] = get_parameter(p_off + P_Env0_L3);
-        data[0x8E + d_off] = get_parameter(p_off + P_Env0_LV) | (get_parameter(p_off + P_Env0_LE) << 6);
-        data[0x8F + d_off] = get_parameter(p_off + P_Env0_T1V);
-        data[0x90 + d_off] = get_parameter(p_off + P_Env0_T1);
-        data[0x91 + d_off] = get_parameter(p_off + P_Env0_T2);
-        data[0x92 + d_off] = get_parameter(p_off + P_Env0_T3);
-        data[0x93 + d_off] = get_parameter(p_off + P_Env0_T4) | (get_parameter(p_off + P_Env0_R2) << 6);
-        data[0x94 + d_off] = get_parameter(p_off + P_Env0_TK);
+        uint p_off = env * (P_Env2_LE - P_Env1_LE);
+        data[0x8A + d_off] = get_parameter(p_off + P_Env1_L1);
+        data[0x8B + d_off] = get_parameter(p_off + P_Env1_L2);
+        data[0x8C + d_off] = get_parameter(p_off + P_Env1_L3);
+        data[0x8E + d_off] = get_parameter(p_off + P_Env1_LV) | (get_parameter(p_off + P_Env1_LE) << 6);
+        data[0x8F + d_off] = get_parameter(p_off + P_Env1_T1V);
+        data[0x90 + d_off] = get_parameter(p_off + P_Env1_T1);
+        data[0x91 + d_off] = get_parameter(p_off + P_Env1_T2);
+        data[0x92 + d_off] = get_parameter(p_off + P_Env1_T3);
+        data[0x93 + d_off] = get_parameter(p_off + P_Env1_T4) | (get_parameter(p_off + P_Env1_R2) << 6);
+        data[0x94 + d_off] = get_parameter(p_off + P_Env1_TK);
     }
 
     for (uint lfo = 0; lfo < 3; ++lfo) {
         uint d_off = lfo * 16;
-        uint p_off = lfo * (P_Lfo1_FREQ - P_Lfo0_FREQ);
-        data[0xC1 + d_off] = get_parameter(p_off + P_Lfo0_FREQ);
-        data[0xC2 + d_off] = get_parameter(p_off + P_Lfo0_RESET) ? 0 : 0xff;
-        data[0xC3 + d_off] = get_parameter(p_off + P_Lfo0_HUMAN);
-        data[0xC4 + d_off] = get_parameter(p_off + P_Lfo0_WAV);
-        data[0xC5 + d_off] = get_parameter(p_off + P_Lfo0_L1);
-        data[0xC6 + d_off] = get_parameter(p_off + P_Lfo0_DELAY);
-        data[0xC7 + d_off] = get_parameter(p_off + P_Lfo0_L2);
-        write_mod(data, 0xC8 + d_off, get_parameter(p_off + P_Lfo0_MOD));
+        uint p_off = lfo * (P_Lfo2_FREQ - P_Lfo1_FREQ);
+        data[0xC1 + d_off] = get_parameter(p_off + P_Lfo1_FREQ);
+        data[0xC2 + d_off] = get_parameter(p_off + P_Lfo1_RESET) ? 0 : 0xff;
+        data[0xC3 + d_off] = get_parameter(p_off + P_Lfo1_HUMAN);
+        data[0xC4 + d_off] = get_parameter(p_off + P_Lfo1_WAV);
+        data[0xC5 + d_off] = get_parameter(p_off + P_Lfo1_L1);
+        data[0xC6 + d_off] = get_parameter(p_off + P_Lfo1_DELAY);
+        data[0xC7 + d_off] = get_parameter(p_off + P_Lfo1_L2);
+        write_mod(data, 0xC8 + d_off, get_parameter(p_off + P_Lfo1_MOD));
     }
 
     data[0x125] = get_parameter(P_Misc_FLTFC);
