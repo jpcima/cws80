@@ -1,0 +1,7 @@
+// -*- mode: c++; -*-
+
+#include "cws/cws80_data.cpp"
+#include "cws/cws80_program.cpp"
+#include "cws/cws80_program_realfmt.cpp"
+#include "cws/cws80_program_sq8lfmt.cpp"
+#include "cws/cws80_program_textfmt.cpp"

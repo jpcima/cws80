@@ -331,6 +331,7 @@ int cmd_shell(int argc, char *argv[])
                 printf("Command Help:\n"
                        "  - <sp|select-program> <program-number>\n"
                        "  - <pp|print-program>\n"
+                       "  - <lb|load-bank> <bank-file>\n"
                     );
             }
             else if (op == "sp" || op == "select-program") {
@@ -357,6 +358,13 @@ int cmd_shell(int argc, char *argv[])
                 printf("\n");
                 last_pp_chunk = chunk;
             }
+            else if (op == "lb" || op == "load-bank") {
+                std::string filename;
+                in >> filename;
+
+                if (!host.load_sysex_bank_file(filename.c_str()))
+                    fprintf(stderr, "Cannot load bank file.\n");
+            }
             else
                 printf("Unknown command \"%s\"\n", op.c_str());
         }
@@ -364,8 +372,6 @@ int cmd_shell(int argc, char *argv[])
 
     host.close_editor();
     DestroyWindow(wnd);
-
-    #pragma message("TODO: the SQ8L shell")
 
     return 0;
 }

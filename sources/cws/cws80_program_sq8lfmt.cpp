@@ -48,7 +48,7 @@ static const u8 SQ8L_base_patch[Program::SQ8L_patch_size] = {
 /* $230: */ 0xFF,0x00,0xFF,0xFF,0x00,0xFF,0xFF,0x00,0xFF,0xFF,0x00
 };
 
-void Program::save_SQ8L(u8 *data)
+void Program::save_SQ8L(u8 *data) const
 {
     memcpy(data, SQ8L_base_patch, SQ8L_patch_size);
 

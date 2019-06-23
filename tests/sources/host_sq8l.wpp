@@ -73,6 +73,45 @@ dynarray<u8> Host_SQ8L::get_current_program_chunk()
     return dynarray<u8>(data, data + size);
 }
 
+void Host_SQ8L::set_current_program_chunk(const u8 *data, u32 len)
+{
+    AEffect *aeff = aeff_.get();
+    aeff->dispatcher(aeff, 24 /*effSetChunk*/, 1, len, (void *)data, 0);
+}
+
+void Host_SQ8L::load_bank(const cws80::Bank &bank)
+{
+    for (uint i = 0, n = num_programs(); i < bank.pgm_count && i < n; ++i) {
+        u8 sq8l_pgm[cws80::Program::SQ8L_patch_size];
+        bank.pgm[i].save_SQ8L(sq8l_pgm);
+        set_current_program(i);
+        set_current_program_chunk(sq8l_pgm, cws80::Program::SQ8L_patch_size);
+    }
+    set_current_program(0);
+}
+
+bool Host_SQ8L::load_sysex_bank_stream(FILE *fh)
+{
+    bool success = false;
+    try {
+        cws80::Bank bank = cws80::Bank::read_sysex(fh);
+        load_bank(bank);
+        success = true;
+    }
+    catch (...) {
+    }
+    return success;
+}
+
+bool Host_SQ8L::load_sysex_bank_file(const char *filename)
+{
+    FILE *fh = fopen(filename, "rb");
+    if (!fh)
+        return false;
+    SCOPE(exit) { fclose(fh); };
+    return load_sysex_bank_stream(fh);
+}
+
 bool Host_SQ8L::send_midi(const u8 *msg, size_t len)
 {
     if (len > 4)

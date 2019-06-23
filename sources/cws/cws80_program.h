@@ -86,7 +86,7 @@ struct Program {
 
     // SQ8L export
     static constexpr uint SQ8L_patch_size = 0x23b;
-    void save_SQ8L(u8 *data);
+    void save_SQ8L(u8 *data) const;
 
     std::string to_string() const;
     static Program from_string(const std::string &string);

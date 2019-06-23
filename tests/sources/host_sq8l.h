@@ -4,6 +4,8 @@
 #include "utility/types.h"
 #include <vestige.h>
 #include <memory>
+#include <cstdio>
+namespace cws80 { struct Bank; }
 
 struct Vst_ERect {
     int16_t top, left, bottom, right;
@@ -21,6 +23,10 @@ public:
     void set_current_program(u32 program);
     std::string get_current_program_name();
     dynarray<u8> get_current_program_chunk();
+    void set_current_program_chunk(const u8 *data, u32 len);
+    void load_bank(const cws80::Bank &bank);
+    bool load_sysex_bank_stream(FILE *fh);
+    bool load_sysex_bank_file(const char *filename);
     bool send_midi(const u8 *msg, size_t len);
     bool send_sysex(const u8 *msg, size_t len);
 

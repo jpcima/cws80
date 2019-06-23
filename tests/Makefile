@@ -56,7 +56,8 @@ bin/test_lfo: CXXFLAGS += -DFMT_HEADER_ONLY -D_USE_MATH_DEFINES -Isources -Ireso
 #-------------------------------------------------------------------------------
 test_sq8l_OBJS = \
 	build/test_sq8l.wpp.o \
-	build/host_sq8l.wpp.o
+	build/host_sq8l.wpp.o \
+	build/cws80_sq8l.wpp.o
 
 bin/test_sq8l.exe: $(test_sq8l_OBJS)
 	@install -d $(dir $@)
