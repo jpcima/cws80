@@ -21,6 +21,6 @@
 //
 #define CWS80_LABEL "CWS80"
 #define CWS80_AUTHOR "Jean Pierre Cimalando"
-#define CWS80_LICENSE "CeCILL"
+#define CWS80_LICENSE "http://opensource.org/licenses/CECILL-2.1"
 #define CWS80_VERSION d_version(1, 0, 0)
 #define CWS80_UNIQUE_ID d_cconst('c', 'w', 's', '8')
