@@ -1,4 +1,5 @@
 #include "nk_layout.h"
+#include <limits>
 
 namespace cws80 {
 
