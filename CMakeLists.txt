@@ -8,10 +8,19 @@ set(CMAKE_CXX_VISIBILITY_PRESET "hidden")
 set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+# options
+set(CWS80_GRAPHICS_DEVICE "cairo" CACHE STRING "Graphics device")
+set_property(CACHE CWS80_GRAPHICS_DEVICE PROPERTY STRINGS "cairo" "opengl")
+
+###
 add_subdirectory("dpf")
 find_package(TCL)
 if(NOT TCLTK_FOUND)
   message(FATAL_ERROR "Cannot find Tcl/Tk")
+endif()
+
+if(CWS80_GRAPHICS_DEVICE STREQUAL "opengl")
+  find_package(GLEW REQUIRED)
 endif()
 
 find_package(OpenMP)
@@ -89,7 +98,7 @@ target_compile_definitions(cws80_core
 ###
 dpf_add_plugin(cws80
   TARGETS lv2 vst2 jack
-  UI_TYPE cairo
+  UI_TYPE "${CWS80_GRAPHICS_DEVICE}"
   FILES_DSP
     "plugins/cws80/plugin.cpp"
     "plugins/cws80/plugin.h"
@@ -134,8 +143,6 @@ dpf_add_plugin(cws80
     "sources/ui/detail/ui_helpers_native.h"
     "sources/ui/detail/ui_helpers_tk.cpp"
     "sources/ui/detail/ui_helpers_tk.h"
-    "sources/ui/detail/device/dev_graphics_cairo.cpp"
-    "sources/ui/detail/device/dev_graphics_cairo.h"
     "sources/ui/detail/device/dev_graphics.cpp"
     "sources/ui/detail/device/dev_graphics.h"
     "sources/ui/detail/device/dev_input_common.h"
@@ -174,6 +181,27 @@ target_link_libraries(cws80
     cws80_core
     "${TK_LIBRARY}"
     "${TCL_LIBRARY}")
+
+if(CWS80_GRAPHICS_DEVICE STREQUAL "cairo")
+  target_sources(cws80-ui
+    PRIVATE
+      "sources/ui/detail/device/dev_graphics_cairo.cpp"
+      "sources/ui/detail/device/dev_graphics_cairo.h")
+  target_compile_definitions(cws80-ui
+    PUBLIC
+      "CWS80_UI_CAIRO")
+elseif(CWS80_GRAPHICS_DEVICE STREQUAL "opengl")
+  target_sources(cws80-ui
+    PRIVATE
+      "sources/ui/detail/device/dev_graphics_gl.cpp"
+      "sources/ui/detail/device/dev_graphics_gl.h")
+  target_compile_definitions(cws80-ui
+    PUBLIC
+      "CWS80_UI_OPENGL")
+  target_link_libraries(cws80-ui
+    PUBLIC
+      GLEW::GLEW)
+endif()
 
 ###
 add_executable(cws80_tool
