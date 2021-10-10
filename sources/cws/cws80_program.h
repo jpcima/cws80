@@ -54,7 +54,7 @@ struct Program {
         i8 OCT() const { return std::min(OCTSEMI / 12 - 3, 5); }
         u8 SEMI() const { return OCTSEMI % 12; }
         void OCT(i8 x) { OCTSEMI = clamp<i8>(x + 3, 0, 8) * 12 + SEMI(); }
-        void SEMI(u8 x) { OCTSEMI = OCT() * 12 + std::min<u8>(x, 11); }
+        void SEMI(u8 x) { OCTSEMI = (OCT() + 3) * 12 + std::min<u8>(x, 11); }
     };
 
     struct Misc {
