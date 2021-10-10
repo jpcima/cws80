@@ -24,7 +24,11 @@ public:
 
 protected:
     void parameterChanged(u32 index, float value) override;
+#if defined(DGL_OPENGL)
     void onDisplay() override;
+#elif defined(DGL_CAIRO)
+    void onCairoDisplay(const CairoGraphicsContext& context) override;
+#endif
     void uiIdle() override;
     bool onKeyboard(const KeyboardEvent &evt) override;
     bool onSpecial(const SpecialEvent &evt) override;

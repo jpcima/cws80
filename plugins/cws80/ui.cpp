@@ -28,7 +28,11 @@ void SynthUI::parameterChanged(u32 index, float value)
     (void)index; (void)value;
 }
 
+#if defined(DGL_OPENGL)
 void SynthUI::onDisplay()
+#elif defined(DGL_CAIRO)
+void SynthUI::onCairoDisplay(const CairoGraphicsContext& context)
+#endif
 {
     if (!init_device_) {
         initDevice();
@@ -38,7 +42,7 @@ void SynthUI::onDisplay()
 #if defined(DGL_OPENGL)
     void *draw_context = nullptr;
 #elif defined(DGL_CAIRO)
-    void *draw_context = this->getParentWindow().getGraphicsContext().cairo;
+    void *draw_context = context.handle;
 #endif
 
     cws80::UI &ui = ui_;
