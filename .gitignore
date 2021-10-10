@@ -1,8 +1,1 @@
-*.o
-*.a
-*.d
-*.exe
-*.dll
-*.so
-bin/
-build/
+/build/
