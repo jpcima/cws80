@@ -14,7 +14,7 @@ set_property(CACHE CWS80_GRAPHICS_DEVICE PROPERTY STRINGS "cairo" "opengl")
 
 ###
 add_subdirectory("dpf")
-find_package(TCL)
+find_package(TclStub)
 if(NOT TCLTK_FOUND)
   message(FATAL_ERROR "Cannot find Tcl/Tk")
 endif()
@@ -175,12 +175,14 @@ target_compile_definitions(cws80
     "NK_ZERO_COMMAND_MEMORY"
     "STBI_MALLOC=malloc"
     "STBI_REALLOC=realloc"
-    "STBI_FREE=free")
+    "STBI_FREE=free"
+    "USE_TCL_STUBS"
+    "USE_TK_STUBS")
 target_link_libraries(cws80
   PUBLIC
     cws80_core
-    "${TK_LIBRARY}"
-    "${TCL_LIBRARY}")
+    "${TK_STUB_LIBRARY}"
+    "${TCL_STUB_LIBRARY}")
 
 if(CWS80_GRAPHICS_DEVICE STREQUAL "cairo")
   target_sources(cws80-ui
